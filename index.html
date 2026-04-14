@@ -49,6 +49,55 @@
             font-weight: 500;
         }
 
+        .language-direction {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .direction-btn {
+            padding: 8px 20px;
+            background: rgba(255,255,255,0.2);
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 20px;
+            color: white;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+
+        .direction-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .direction-btn.active {
+            background: white;
+            color: #667eea;
+            border-color: white;
+        }
+
+        .swap-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            color: white;
+            cursor: pointer;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .swap-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: rotate(180deg);
+        }
+
         .language-pair {
             background: rgba(255,255,255,0.2);
             padding: 10px 25px;
@@ -419,8 +468,10 @@
         <div class="header">
             <h1>Medical Document Translator</h1>
             <p>医学文档翻译器</p>
-            <div class="language-pair">
-                English &#10140; &#20013;&#25991;
+            <div class="language-direction">
+                <button class="direction-btn active" id="btnEnToZh" onclick="setDirection('en-zh')">English &#10140; &#20013;&#25991;</button>
+                <button class="swap-btn" id="swapBtn" onclick="toggleDirection()" title="Swap languages">&#8644;</button>
+                <button class="direction-btn" id="btnZhToEn" onclick="setDirection('zh-en')">&#20013;&#25991; &#10140; English</button>
             </div>
         </div>
 
@@ -435,11 +486,11 @@
             <div class="tab-content active" id="text-tab">
                 <div class="text-row">
                     <div class="text-box">
-                        <label>English Text (英文)</label>
+                        <label id="inputLabel">English Text (英文)</label>
                         <textarea id="inputText" placeholder="Enter or paste English medical text here..."></textarea>
                     </div>
                     <div class="text-box">
-                        <label>Chinese Translation (中文翻译)</label>
+                        <label id="outputLabel">Chinese Translation (中文翻译)</label>
                         <div class="output-display" id="outputText"></div>
                     </div>
                 </div>
@@ -707,6 +758,186 @@
             'medical record number': '病历号'
         };
 
+        // Reverse dictionary (Chinese to English)
+        const medicalTermsReverse = {
+            '糖尿病': 'diabetes',
+            '高血压': 'hypertension',
+            '冠状动脉疾病': 'coronary artery disease',
+            '心肌梗死': 'myocardial infarction',
+            '心脏病发作': 'heart attack',
+            '中风': 'stroke',
+            '肺炎': 'pneumonia',
+            '支气管炎': 'bronchitis',
+            '哮喘': 'asthma',
+            '癌症': 'cancer',
+            '肿瘤': 'tumor',
+            '恶性': 'malignant',
+            '良性': 'benign',
+            '感染': 'infection',
+            '炎症': 'inflammation',
+            '关节炎': 'arthritis',
+            '骨质疏松症': 'osteoporosis',
+            '贫血': 'anemia',
+            '白血病': 'leukemia',
+            '淋巴瘤': 'lymphoma',
+            '肝炎': 'hepatitis',
+            '肝硬化': 'cirrhosis',
+            '肾衰竭': 'kidney failure',
+            '阿尔茨海默病': "Alzheimer's disease",
+            '帕金森病': "Parkinson's disease",
+            '癫痫': 'epilepsy',
+            '偏头痛': 'migraine',
+            '抑郁症': 'depression',
+            '焦虑症': 'anxiety disorder',
+            '精神分裂症': 'schizophrenia',
+            '新冠肺炎': 'COVID-19',
+            '流感': 'influenza',
+            '发热': 'fever',
+            '头痛': 'headache',
+            '头晕': 'dizziness',
+            '恶心': 'nausea',
+            '呕吐': 'vomiting',
+            '腹泻': 'diarrhea',
+            '便秘': 'constipation',
+            '疲劳': 'fatigue',
+            '胸痛': 'chest pain',
+            '呼吸急促': 'shortness of breath',
+            '咳嗽': 'cough',
+            '喉咙痛': 'sore throat',
+            '腹痛': 'abdominal pain',
+            '关节痛': 'joint pain',
+            '肌肉疼痛': 'muscle pain',
+            '皮疹': 'rash',
+            '瘙痒': 'itching',
+            '肿胀': 'swelling',
+            '出血': 'bleeding',
+            '瘀伤': 'bruising',
+            '体重减轻': 'weight loss',
+            '体重增加': 'weight gain',
+            '食欲不振': 'loss of appetite',
+            '失眠': 'insomnia',
+            '盗汗': 'night sweats',
+            '心悸': 'palpitations',
+            '手术': 'surgery',
+            '活检': 'biopsy',
+            '输血': 'transfusion',
+            '透析': 'dialysis',
+            '化疗': 'chemotherapy',
+            '放疗': 'radiation therapy',
+            '免疫治疗': 'immunotherapy',
+            '物理治疗': 'physical therapy',
+            '内窥镜检查': 'endoscopy',
+            '结肠镜检查': 'colonoscopy',
+            '胃镜检查': 'gastroscopy',
+            '腹腔镜检查': 'laparoscopy',
+            '磁共振成像': 'MRI',
+            'CT 扫描': 'CT scan',
+            'X 光检查': 'X-ray',
+            '超声检查': 'ultrasound',
+            '心电图': 'ECG',
+            '血液检查': 'blood test',
+            '尿液检查': 'urine test',
+            '抗生素': 'antibiotic',
+            '止痛药': 'painkiller',
+            '退烧药': 'antipyretic',
+            '抗组胺药': 'antihistamine',
+            '抗凝剂': 'anticoagulant',
+            '胰岛素': 'insulin',
+            '疫苗': 'vaccine',
+            '处方': 'prescription',
+            '剂量': 'dosage',
+            '片剂': 'tablet',
+            '胶囊': 'capsule',
+            '注射': 'injection',
+            '输液': 'infusion',
+            '药膏': 'ointment',
+            '糖浆': 'syrup',
+            '心脏': 'heart',
+            '肺': 'lung',
+            '肝脏': 'liver',
+            '肾脏': 'kidney',
+            '胃': 'stomach',
+            '肠': 'intestine',
+            '大脑': 'brain',
+            '脊髓': 'spinal cord',
+            '骨': 'bone',
+            '肌肉': 'muscle',
+            '皮肤': 'skin',
+            '血液': 'blood',
+            '静脉': 'vein',
+            '动脉': 'artery',
+            '神经': 'nerve',
+            '淋巴结': 'lymph node',
+            '胰腺': 'pancreas',
+            '脾脏': 'spleen',
+            '胆囊': 'gallbladder',
+            '膀胱': 'bladder',
+            '子宫': 'uterus',
+            '卵巢': 'ovary',
+            '前列腺': 'prostate',
+            '甲状腺': 'thyroid',
+            '医生': 'doctor',
+            '医师': 'physician',
+            '外科医生': 'surgeon',
+            '护士': 'nurse',
+            '专科医生': 'specialist',
+            '心脏科医生': 'cardiologist',
+            '神经科医生': 'neurologist',
+            '肿瘤科医生': 'oncologist',
+            '儿科医生': 'pediatrician',
+            '皮肤科医生': 'dermatologist',
+            '精神科医生': 'psychiatrist',
+            '放射科医生': 'radiologist',
+            '麻醉科医生': 'anesthesiologist',
+            '急诊': 'emergency',
+            '门诊': 'outpatient',
+            '住院': 'inpatient',
+            '重症监护室': 'ICU',
+            '手术室': 'operating room',
+            '实验室': 'laboratory',
+            '药房': 'pharmacy',
+            '病史': 'medical history',
+            '家族史': 'family history',
+            '过敏史': 'allergies',
+            '目前用药': 'current medications',
+            '主诉': 'chief complaint',
+            '体格检查': 'physical examination',
+            '生命体征': 'vital signs',
+            '血压': 'blood pressure',
+            '心率': 'heart rate',
+            '体温': 'temperature',
+            '呼吸频率': 'respiratory rate',
+            '血氧饱和度': 'oxygen saturation',
+            '诊断': 'diagnosis',
+            '治疗': 'treatment',
+            '治疗方案': 'treatment plan',
+            '预后': 'prognosis',
+            '随访': 'follow-up',
+            '出院': 'discharge',
+            '入院': 'admission',
+            '同意书': 'consent form',
+            '知情同意': 'informed consent',
+            '副作用': 'side effects',
+            '并发症': 'complications',
+            '禁忌症': 'contraindications',
+            '康复': 'recovery',
+            '慢性': 'chronic',
+            '急性': 'acute',
+            '严重': 'severe',
+            '轻度': 'mild',
+            '中度': 'moderate',
+            '正常': 'normal',
+            '异常': 'abnormal',
+            '阳性': 'positive',
+            '阴性': 'negative',
+            '患者': 'patient',
+            '男性': 'male',
+            '女性': 'female',
+            '年龄': 'age',
+            '出生日期': 'date of birth',
+            '病历号': 'medical record number'
+        };
+
         // Glossary categories
         const glossaryCategories = {
             'Diagnoses (诊断)': ['diabetes', 'hypertension', 'cancer', 'pneumonia', 'stroke', 'heart attack'],
@@ -744,6 +975,38 @@
 
         let selectedFile = null;
         let translatedContent = '';
+        let currentDirection = 'en-zh'; // 'en-zh' or 'zh-en'
+
+        // Set translation direction
+        function setDirection(direction) {
+            currentDirection = direction;
+            const btnEnToZh = document.getElementById('btnEnToZh');
+            const btnZhToEn = document.getElementById('btnZhToEn');
+            const inputLabel = document.getElementById('inputLabel');
+            const outputLabel = document.getElementById('outputLabel');
+            const translateBtn = document.getElementById('translateTextBtn');
+
+            if (direction === 'en-zh') {
+                btnEnToZh.classList.add('active');
+                btnZhToEn.classList.remove('active');
+                inputLabel.textContent = 'English Text (英文)';
+                outputLabel.textContent = 'Chinese Translation (中文翻译)';
+                translateBtn.textContent = 'Translate to Chinese';
+                document.getElementById('inputText').placeholder = 'Enter or paste English medical text here...';
+            } else {
+                btnZhToEn.classList.add('active');
+                btnEnToZh.classList.remove('active');
+                inputLabel.textContent = 'Chinese Text (中文)';
+                outputLabel.textContent = 'English Translation (英文翻译)';
+                translateBtn.textContent = 'Translate to English';
+                document.getElementById('inputText').placeholder = '输入或粘贴中文医学文本...';
+            }
+        }
+
+        // Toggle direction
+        function toggleDirection() {
+            setDirection(currentDirection === 'en-zh' ? 'zh-en' : 'en-zh');
+        }
 
         // Tab switching
         tabs.forEach(tab => {
@@ -773,11 +1036,14 @@
         buildGlossary();
 
         // Translation function using MyMemory API (free, no key required)
-        async function translateText(text) {
+        async function translateText(text, direction) {
             if (!text || !text.trim()) return '';
 
+            const langPair = direction === 'en-zh' ? 'en|zh' : 'zh|en';
+            const dictionary = direction === 'en-zh' ? medicalTerms : medicalTermsReverse;
+
             // Split text into sentences for better translation
-            const sentences = text.split(/(?<=[.!?])\s+/).filter(s => s.trim());
+            const sentences = text.split(/(?<=[.!?。！？])\s*/).filter(s => s.trim());
             let translatedSentences = [];
 
             for (const sentence of sentences) {
@@ -785,22 +1051,23 @@
 
                 // Step 1: Apply medical dictionary replacements first
                 let processedSentence = sentence;
-                const sortedTerms = Object.entries(medicalTerms).sort((a, b) => b[0].length - a[0].length);
+                const sortedTerms = Object.entries(dictionary).sort((a, b) => b[0].length - a[0].length);
 
                 for (const [term, translation] of sortedTerms) {
                     const regex = new RegExp(term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
                     processedSentence = processedSentence.replace(regex, translation);
                 }
 
-                // Step 2: Check if the sentence was fully translated by dictionary
-                // If it still contains significant English text, use API for that part
-                const englishWords = processedSentence.match(/[a-zA-Z]{3,}/g);
+                // Step 2: Check if translation is needed via API
+                const needsApi = direction === 'en-zh'
+                    ? processedSentence.match(/[a-zA-Z]{3,}/g)
+                    : processedSentence.match(/[\u4e00-\u9fff]{2,}/g);
 
-                if (englishWords && englishWords.length > 0) {
-                    // Still has English words - use API for the whole sentence
+                if (needsApi && needsApi.length > 0) {
+                    // Use API for the whole sentence
                     try {
                         const response = await fetch(
-                            `https://api.mymemory.translated.net/get?q=${encodeURIComponent(sentence)}&langpair=en|zh`
+                            `https://api.mymemory.translated.net/get?q=${encodeURIComponent(sentence)}&langpair=${langPair}`
                         );
                         const data = await response.json();
                         if (data.responseData && data.responseData.translatedText) {
@@ -851,7 +1118,7 @@
                     }
                 }, 200);
 
-                translatedContent = await translateText(text);
+                translatedContent = await translateText(text, currentDirection);
 
                 clearInterval(progressInterval);
                 textProgressFill.style.width = '100%';
@@ -946,7 +1213,7 @@
                 fileProgressText.textContent = 'Translating...';
 
                 // Translate
-                translatedContent = await translateText(text);
+                translatedContent = await translateText(text, currentDirection);
 
                 clearInterval(progressInterval);
                 fileProgressFill.style.width = '100%';
