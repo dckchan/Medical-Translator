@@ -17,9 +17,9 @@
             --accent-warm: #68d391;
             --accent-glow: rgba(99, 179, 237, 0.15);
             --accent-warm-glow: rgba(104, 211, 145, 0.12);
-            --text-primary: #e8ecf4;
-            --text-secondary: #8896b3;
-            --text-muted: #5a6a8a;
+            --text-primary: #f0f4fc;
+            --text-secondary: #b0bdd6;
+            --text-muted: #7888a8;
             --danger: #fc8181;
             --danger-bg: rgba(252, 129, 129, 0.08);
             --success: #68d391;
@@ -31,6 +31,33 @@
             --shadow-card: 0 4px 24px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.2);
             --shadow-glow: 0 0 40px rgba(99, 179, 237, 0.06);
             --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            --h1-gradient: linear-gradient(135deg, #f0f4fc 30%, var(--accent) 100%);
+            --btn-primary-text: #0a0f1e;
+        }
+
+        /* ── Day Mode ── */
+        [data-theme="day"] {
+            --bg-primary: #f2f4f8;
+            --bg-card: #ffffff;
+            --bg-card-elevated: #f0f2f6;
+            --bg-input: #f7f8fb;
+            --border-subtle: rgba(30, 60, 110, 0.12);
+            --border-active: rgba(49, 120, 210, 0.35);
+            --accent: #2b6cb0;
+            --accent-warm: #2f855a;
+            --accent-glow: rgba(49, 120, 210, 0.1);
+            --accent-warm-glow: rgba(47, 133, 90, 0.08);
+            --text-primary: #1a202c;
+            --text-secondary: #4a5568;
+            --text-muted: #8695ae;
+            --danger: #e53e3e;
+            --danger-bg: rgba(229, 62, 62, 0.06);
+            --success: #2f855a;
+            --success-bg: rgba(47, 133, 90, 0.06);
+            --shadow-card: 0 4px 24px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.08);
+            --shadow-glow: 0 0 40px rgba(49, 120, 210, 0.04);
+            --h1-gradient: linear-gradient(135deg, #1a202c 30%, var(--accent) 100%);
+            --btn-primary-text: #ffffff;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -92,7 +119,7 @@
             font-weight: 800;
             font-size: clamp(1.9rem, 4.5vw, 3rem);
             letter-spacing: -0.5px;
-            background: linear-gradient(135deg, #e8ecf4 30%, var(--accent) 100%);
+            background: var(--h1-gradient);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
@@ -292,7 +319,7 @@
         }
         .btn-primary {
             background: linear-gradient(135deg, var(--accent) 0%, #4299e1 100%);
-            color: #0a0f1e;
+            color: var(--btn-primary-text);
         }
         .btn-primary:hover:not(:disabled) {
             transform: translateY(-1px);
@@ -309,7 +336,7 @@
 
         .btn-success {
             background: var(--success);
-            color: #0a0f1e;
+            color: var(--btn-primary-text);
         }
         .btn-success:hover { box-shadow: 0 4px 16px rgba(104,211,145,0.25); }
 
@@ -392,7 +419,7 @@
             gap: 8px;
             padding: 12px 28px;
             background: var(--success);
-            color: #0a0f1e;
+            color: var(--btn-primary-text);
             text-decoration: none;
             border-radius: var(--radius-md);
             font-weight: 600;
@@ -526,6 +553,65 @@
             letter-spacing: 0.5px;
         }
 
+        /* ── Day mode: hide ambient blobs ── */
+        [data-theme="day"] body::before,
+        [data-theme="day"] body::after { opacity: 0; }
+
+        /* ── Theme Toggle Switch ── */
+        .theme-toggle {
+            position: absolute;
+            top: 0;
+            right: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .theme-toggle-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            user-select: none;
+        }
+        .toggle-track {
+            position: relative;
+            width: 52px;
+            height: 28px;
+            background: var(--bg-input);
+            border: 1.5px solid var(--border-subtle);
+            border-radius: 100px;
+            cursor: pointer;
+            transition: var(--transition);
+            flex-shrink: 0;
+        }
+        .toggle-track:hover { border-color: var(--border-active); }
+        .toggle-thumb {
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--accent);
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            line-height: 1;
+        }
+        .toggle-thumb::after {
+            content: '🌙';
+            font-size: 0.72rem;
+        }
+        [data-theme="day"] .toggle-thumb {
+            left: 27px;
+            background: #f6ad55;
+        }
+        [data-theme="day"] .toggle-thumb::after {
+            content: '☀️';
+        }
+
         /* Smooth scroll */
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: transparent; }
@@ -538,7 +624,13 @@
 </head>
 <body>
     <div class="app-shell">
-        <div class="header">
+        <div class="header" style="position:relative;">
+            <div class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Switch day / night mode">
+                <span class="theme-toggle-label" id="themeLabel">Night</span>
+                <div class="toggle-track">
+                    <div class="toggle-thumb"></div>
+                </div>
+            </div>
             <div class="credit">Produced by D. Chan in 2026</div>
             <h1>Medical Document Translator</h1>
             <p class="subtitle">医学文档翻译器 — Precision medical translation</p>
@@ -822,6 +914,21 @@
         let translatedContent = '';
         let currentDirection = 'en-zh';
         let chineseVariant = 'simplified'; // 'simplified' or 'traditional'
+
+        // ═══════════════════════════════════════════════
+        //  THEME TOGGLE (Night / Day)
+        // ═══════════════════════════════════════════════
+        function toggleTheme() {
+            const html = document.documentElement;
+            const isDay = html.getAttribute('data-theme') === 'day';
+            if (isDay) {
+                html.removeAttribute('data-theme');
+                document.getElementById('themeLabel').textContent = 'Night';
+            } else {
+                html.setAttribute('data-theme', 'day');
+                document.getElementById('themeLabel').textContent = 'Day';
+            }
+        }
 
         // ═══════════════════════════════════════════════
         //  GLOSSARY CATEGORIES
