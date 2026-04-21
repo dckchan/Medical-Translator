@@ -4,537 +4,631 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Medical Document Translator | 医学文档翻译器</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Playfair+Display:wght@600;700;800&family=Noto+Sans+SC:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        :root {
+            --bg-primary: #0a0f1e;
+            --bg-card: #111827;
+            --bg-card-elevated: #1a2236;
+            --bg-input: #0d1525;
+            --border-subtle: rgba(99, 179, 237, 0.12);
+            --border-active: rgba(99, 179, 237, 0.35);
+            --accent: #63b3ed;
+            --accent-warm: #68d391;
+            --accent-glow: rgba(99, 179, 237, 0.15);
+            --accent-warm-glow: rgba(104, 211, 145, 0.12);
+            --text-primary: #e8ecf4;
+            --text-secondary: #8896b3;
+            --text-muted: #5a6a8a;
+            --danger: #fc8181;
+            --danger-bg: rgba(252, 129, 129, 0.08);
+            --success: #68d391;
+            --success-bg: rgba(104, 211, 145, 0.08);
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 20px;
+            --shadow-card: 0 4px 24px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.2);
+            --shadow-glow: 0 0 40px rgba(99, 179, 237, 0.06);
+            --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Microsoft YaHei', 'SimHei', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'DM Sans', 'Noto Sans SC', 'Noto Sans TC', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
             min-height: 100vh;
-            padding: 40px 20px;
+            overflow-x: hidden;
         }
 
-        .container {
-            max-width: 900px;
+        /* Ambient background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: -30%;
+            left: -10%;
+            width: 60%;
+            height: 60%;
+            background: radial-gradient(ellipse, rgba(99,179,237,0.04) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+        }
+        body::after {
+            content: '';
+            position: fixed;
+            bottom: -20%;
+            right: -10%;
+            width: 50%;
+            height: 50%;
+            background: radial-gradient(ellipse, rgba(104,211,145,0.03) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .app-shell {
+            position: relative;
+            z-index: 1;
+            max-width: 1080px;
             margin: 0 auto;
+            padding: 32px 20px 60px;
         }
 
+        /* ── Header ── */
         .header {
             text-align: center;
-            color: white;
-            margin-bottom: 40px;
+            margin-bottom: 36px;
         }
-
-        .header h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
-        }
-
-        .header p {
-            font-size: 1.1rem;
-            opacity: 0.9;
-        }
-
         .credit {
-            text-align: center;
-            color: white;
-            margin-bottom: 20px;
-            font-size: 0.95rem;
-            opacity: 0.85;
-            font-weight: 500;
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-bottom: 18px;
+        }
+        .header h1 {
+            font-family: 'Playfair Display', serif;
+            font-weight: 800;
+            font-size: clamp(1.9rem, 4.5vw, 3rem);
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #e8ecf4 30%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.15;
+        }
+        .header .subtitle {
+            font-size: 1.05rem;
+            color: var(--text-secondary);
+            margin-top: 6px;
+            font-weight: 300;
         }
 
-        .language-direction {
+        /* ── Language Direction Bar ── */
+        .lang-bar {
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 15px;
-            margin-top: 15px;
+            gap: 8px;
+            margin-top: 22px;
+            flex-wrap: wrap;
         }
-
-        .direction-btn {
-            padding: 8px 20px;
-            background: rgba(255,255,255,0.2);
-            border: 2px solid rgba(255,255,255,0.3);
-            border-radius: 20px;
-            color: white;
+        .lang-btn {
+            padding: 8px 22px;
+            border-radius: 100px;
+            border: 1.5px solid var(--border-subtle);
+            background: transparent;
+            color: var(--text-secondary);
+            font-size: 0.88rem;
+            font-family: inherit;
             cursor: pointer;
-            font-size: 0.9rem;
-            transition: all 0.3s;
+            transition: var(--transition);
+            white-space: nowrap;
         }
-
-        .direction-btn:hover {
-            background: rgba(255,255,255,0.3);
+        .lang-btn:hover { border-color: var(--border-active); color: var(--text-primary); }
+        .lang-btn.active {
+            background: var(--accent-glow);
+            border-color: var(--accent);
+            color: var(--accent);
+            font-weight: 600;
         }
-
-        .direction-btn.active {
-            background: white;
-            color: #667eea;
-            border-color: white;
-        }
-
         .swap-btn {
-            background: rgba(255,255,255,0.2);
-            border: none;
+            width: 36px; height: 36px;
             border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            color: white;
+            border: 1.5px solid var(--border-subtle);
+            background: transparent;
+            color: var(--text-secondary);
+            font-size: 1.1rem;
             cursor: pointer;
-            font-size: 1.2rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s;
+            display: flex; align-items: center; justify-content: center;
+            transition: var(--transition);
         }
-
         .swap-btn:hover {
-            background: rgba(255,255,255,0.3);
+            border-color: var(--accent);
+            color: var(--accent);
             transform: rotate(180deg);
         }
 
-        .language-pair {
-            background: rgba(255,255,255,0.2);
-            padding: 10px 25px;
-            border-radius: 25px;
-            display: inline-block;
-            margin-top: 15px;
-            font-weight: 500;
+        /* ── Chinese Variant Toggle ── */
+        .variant-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            margin-top: 12px;
+        }
+        .variant-label {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .variant-pill {
+            display: flex;
+            border-radius: 100px;
+            border: 1.5px solid var(--border-subtle);
+            overflow: hidden;
+        }
+        .variant-opt {
+            padding: 5px 14px;
+            font-size: 0.8rem;
+            font-family: inherit;
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .variant-opt.active {
+            background: var(--accent-glow);
+            color: var(--accent);
+            font-weight: 600;
+        }
+        .variant-opt:not(.active):hover {
+            color: var(--text-secondary);
         }
 
+        /* ── Card ── */
         .card {
-            background: white;
-            border-radius: 16px;
-            padding: 40px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-xl);
+            padding: 32px;
+            box-shadow: var(--shadow-card), var(--shadow-glow);
         }
 
+        /* ── Tabs ── */
         .tabs {
             display: flex;
-            margin-bottom: 25px;
-            border-bottom: 2px solid #e0e0e0;
+            gap: 4px;
+            background: var(--bg-input);
+            border-radius: var(--radius-md);
+            padding: 4px;
+            margin-bottom: 28px;
         }
-
         .tab {
-            padding: 12px 25px;
-            cursor: pointer;
-            border: none;
-            background: none;
-            font-size: 1rem;
-            color: #666;
-            border-bottom: 3px solid transparent;
-            margin-bottom: -2px;
-            transition: all 0.3s;
-        }
-
-        .tab:hover {
-            color: #667eea;
-        }
-
-        .tab.active {
-            color: #667eea;
-            border-bottom-color: #667eea;
-        }
-
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        /* Text Translation */
-        .text-area-container {
-            margin-bottom: 20px;
-        }
-
-        .text-row {
-            display: flex;
-            gap: 20px;
-            margin-bottom: 15px;
-        }
-
-        .text-box {
             flex: 1;
+            padding: 11px 16px;
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            font-size: 0.88rem;
+            font-family: inherit;
+            font-weight: 500;
+            cursor: pointer;
+            border-radius: var(--radius-sm);
+            transition: var(--transition);
+            white-space: nowrap;
         }
+        .tab:hover { color: var(--text-secondary); }
+        .tab.active {
+            background: var(--bg-card-elevated);
+            color: var(--text-primary);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+        .tab-icon { margin-right: 6px; font-size: 0.95rem; }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeUp 0.3s ease; }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ── Text Translation ── */
+        .text-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+        @media (max-width: 680px) { .text-row { grid-template-columns: 1fr; } }
 
         .text-box label {
             display: block;
-            margin-bottom: 8px;
+            font-size: 0.78rem;
             font-weight: 600;
-            color: #333;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-bottom: 8px;
         }
 
-        textarea {
+        textarea, .output-display {
             width: 100%;
-            height: 200px;
-            padding: 15px;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            font-size: 1rem;
+            height: 220px;
+            padding: 16px;
+            border: 1.5px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            background: var(--bg-input);
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            font-family: inherit;
+            line-height: 1.7;
             resize: vertical;
-            transition: border-color 0.3s;
+            transition: var(--transition);
+        }
+        textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
+        textarea::placeholder { color: var(--text-muted); }
+
+        .output-display {
+            overflow-y: auto;
+            white-space: pre-wrap;
+            min-height: 220px;
         }
 
-        textarea:focus {
-            outline: none;
-            border-color: #667eea;
+        /* ── Buttons ── */
+        .btn {
+            width: 100%;
+            padding: 14px 24px;
+            border: none;
+            border-radius: var(--radius-md);
+            font-size: 0.95rem;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent) 0%, #4299e1 100%);
+            color: #0a0f1e;
+        }
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 24px rgba(99,179,237,0.25);
+        }
+        .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
 
-        /* File Upload */
+        .btn-secondary {
+            background: var(--bg-card-elevated);
+            border: 1.5px solid var(--border-subtle);
+            color: var(--text-secondary);
+        }
+        .btn-secondary:hover { border-color: var(--border-active); color: var(--text-primary); }
+
+        .btn-success {
+            background: var(--success);
+            color: #0a0f1e;
+        }
+        .btn-success:hover { box-shadow: 0 4px 16px rgba(104,211,145,0.25); }
+
+        /* ── File Upload ── */
         .upload-area {
-            border: 3px dashed #667eea;
-            border-radius: 12px;
-            padding: 60px 40px;
+            border: 2px dashed var(--border-subtle);
+            border-radius: var(--radius-lg);
+            padding: 48px 32px;
             text-align: center;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: var(--transition);
             margin-bottom: 20px;
         }
-
-        .upload-area:hover {
-            border-color: #764ba2;
-            background: #f8f9ff;
+        .upload-area:hover, .upload-area.dragover {
+            border-color: var(--accent);
+            background: var(--accent-glow);
         }
-
-        .upload-area.dragover {
-            border-color: #764ba2;
-            background: #f0f2ff;
-        }
-
         .upload-icon {
-            font-size: 4rem;
-            margin-bottom: 20px;
+            font-size: 2.8rem;
+            margin-bottom: 14px;
+            opacity: 0.7;
         }
-
-        .upload-text {
-            font-size: 1.2rem;
-            color: #333;
-            margin-bottom: 10px;
-        }
-
-        .upload-hint {
-            color: #666;
-            font-size: 0.9rem;
-        }
-
-        #fileInput {
-            display: none;
-        }
+        .upload-text { color: var(--text-primary); font-size: 1.05rem; font-weight: 500; margin-bottom: 6px; }
+        .upload-hint { color: var(--text-muted); font-size: 0.85rem; }
+        #fileInput { display: none; }
 
         .file-info {
-            background: #f8f9ff;
-            border-radius: 8px;
-            padding: 15px 20px;
+            background: var(--bg-card-elevated);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            padding: 12px 18px;
             margin-bottom: 20px;
             display: none;
             align-items: center;
             justify-content: space-between;
         }
-
-        .file-info.show {
-            display: flex;
-        }
-
-        .file-name {
-            color: #333;
-            font-weight: 500;
-        }
-
+        .file-info.show { display: flex; }
+        .file-name { color: var(--text-primary); font-weight: 500; font-size: 0.9rem; }
         .remove-file {
-            background: none;
-            border: none;
-            color: #e74c3c;
-            cursor: pointer;
-            font-size: 1.5rem;
-            padding: 5px;
-            line-height: 1;
+            background: none; border: none; color: var(--danger); cursor: pointer;
+            font-size: 1.3rem; padding: 4px; line-height: 1;
         }
 
-        /* Buttons */
-        .btn {
-            width: 100%;
-            padding: 18px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 1.1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-
-        .btn:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
-        }
-
-        .btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-
-        .btn-secondary {
-            background: #6c757d;
-        }
-
-        /* Progress */
-        .progress-container {
-            margin-top: 25px;
-            display: none;
-        }
-
-        .progress-container.show {
-            display: block;
-        }
-
+        /* ── Progress ── */
+        .progress-container { margin-top: 20px; display: none; }
+        .progress-container.show { display: block; animation: fadeUp 0.25s ease; }
         .progress-bar {
-            height: 8px;
-            background: #e0e0e0;
+            height: 4px;
+            background: var(--bg-input);
             border-radius: 4px;
             overflow: hidden;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
         }
-
         .progress-fill {
             height: 100%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(90deg, var(--accent) 0%, var(--accent-warm) 100%);
             width: 0%;
-            transition: width 0.3s ease;
+            transition: width 0.35s ease;
+            border-radius: 4px;
         }
+        .progress-text { text-align: center; color: var(--text-muted); font-size: 0.82rem; }
 
-        .progress-text {
-            text-align: center;
-            color: #666;
-            font-size: 0.95rem;
-        }
-
-        /* Result */
+        /* ── Result ── */
         .result-container {
-            margin-top: 25px;
-            padding: 25px;
-            background: #e8f5e9;
-            border-radius: 12px;
+            margin-top: 20px;
+            padding: 24px;
+            background: var(--success-bg);
+            border: 1px solid rgba(104,211,145,0.2);
+            border-radius: var(--radius-lg);
             display: none;
-        }
-
-        .result-container.show {
-            display: block;
-        }
-
-        .result-icon {
-            font-size: 3rem;
             text-align: center;
-            margin-bottom: 15px;
         }
-
-        .result-title {
-            text-align: center;
-            color: #2e7d32;
-            font-size: 1.3rem;
-            margin-bottom: 20px;
-        }
+        .result-container.show { display: block; animation: fadeUp 0.3s ease; }
+        .result-icon { font-size: 2rem; margin-bottom: 8px; }
+        .result-title { color: var(--success); font-size: 1rem; font-weight: 600; margin-bottom: 16px; }
 
         .download-btn {
-            display: block;
-            width: 100%;
-            padding: 15px;
-            background: #2e7d32;
-            color: white;
-            text-align: center;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 28px;
+            background: var(--success);
+            color: #0a0f1e;
             text-decoration: none;
-            border-radius: 8px;
+            border-radius: var(--radius-md);
             font-weight: 600;
-            transition: background 0.2s;
+            font-size: 0.9rem;
+            transition: var(--transition);
         }
+        .download-btn:hover { box-shadow: 0 4px 16px rgba(104,211,145,0.3); }
 
-        .download-btn:hover {
-            background: #1b5e20;
-        }
-
-        /* Error */
+        /* ── Error ── */
         .error-message {
-            background: #ffebee;
-            color: #c62828;
-            padding: 15px 20px;
-            border-radius: 8px;
-            margin-top: 20px;
+            background: var(--danger-bg);
+            border: 1px solid rgba(252,129,129,0.2);
+            color: var(--danger);
+            padding: 14px 18px;
+            border-radius: var(--radius-md);
+            margin-top: 16px;
             display: none;
+            font-size: 0.9rem;
         }
+        .error-message.show { display: block; animation: fadeUp 0.2s ease; }
 
-        .error-message.show {
-            display: block;
-        }
-
-        /* Features */
-        .features {
-            margin-top: 40px;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-        }
-
-        .feature {
-            background: rgba(255,255,255,0.1);
-            padding: 20px;
-            border-radius: 10px;
-            text-align: center;
-            color: white;
-        }
-
-        .feature-icon {
-            font-size: 2rem;
-            margin-bottom: 10px;
-        }
-
-        .feature-title {
-            font-weight: 600;
-            margin-bottom: 5px;
-        }
-
-        .feature-desc {
-            font-size: 0.85rem;
-            opacity: 0.9;
-        }
-
-        /* Medical Terms Glossary */
-        .glossary {
-            margin-top: 30px;
-            max-height: 300px;
-            overflow-y: auto;
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-        }
-
-        .glossary table {
+        /* ── Glossary ── */
+        .glossary-search {
             width: 100%;
-            border-collapse: collapse;
+            padding: 12px 16px 12px 40px;
+            border: 1.5px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            background: var(--bg-input);
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            font-family: inherit;
+            margin-bottom: 16px;
+            transition: var(--transition);
+        }
+        .glossary-search:focus { outline: none; border-color: var(--accent); }
+        .glossary-search::placeholder { color: var(--text-muted); }
+
+        .search-wrapper {
+            position: relative;
+        }
+        .search-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            pointer-events: none;
         }
 
-        .glossary th,
-        .glossary td {
-            padding: 12px 15px;
+        .glossary {
+            max-height: 420px;
+            overflow-y: auto;
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+        }
+        .glossary::-webkit-scrollbar { width: 6px; }
+        .glossary::-webkit-scrollbar-track { background: transparent; }
+        .glossary::-webkit-scrollbar-thumb { background: var(--border-subtle); border-radius: 3px; }
+
+        .glossary table { width: 100%; border-collapse: collapse; }
+        .glossary th, .glossary td {
+            padding: 10px 16px;
             text-align: left;
-            border-bottom: 1px solid #e0e0e0;
+            border-bottom: 1px solid var(--border-subtle);
+            font-size: 0.88rem;
         }
-
         .glossary th {
-            background: #f8f9ff;
+            background: var(--bg-card-elevated);
+            color: var(--text-muted);
             font-weight: 600;
-            color: #333;
+            text-transform: uppercase;
+            font-size: 0.72rem;
+            letter-spacing: 1px;
             position: sticky;
             top: 0;
+            z-index: 2;
         }
+        .glossary tr:hover td { background: rgba(99,179,237,0.04); }
+        .glossary td:first-child { color: var(--accent); font-weight: 500; }
 
-        .glossary tr:hover {
-            background: #f8f9ff;
-        }
-
-        .glossary-section {
-            margin-bottom: 20px;
-        }
-
+        .glossary-section { margin-bottom: 0; }
         .glossary-section h4 {
-            color: #667eea;
-            margin-bottom: 10px;
+            padding: 12px 16px 8px;
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            background: var(--bg-card);
+            position: sticky;
+            top: 0;
+            z-index: 1;
         }
 
-        /* Output display */
-        .output-display {
-            background: #f8f9ff;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            padding: 15px;
-            min-height: 150px;
-            max-height: 300px;
-            overflow-y: auto;
-            white-space: pre-wrap;
-            font-size: 1rem;
-            line-height: 1.6;
-            color: #333;
+        /* ── Features Grid ── */
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            margin-top: 32px;
         }
+        .feature {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            text-align: center;
+            transition: var(--transition);
+        }
+        .feature:hover { border-color: var(--border-active); transform: translateY(-2px); }
+        .feature-icon { font-size: 1.6rem; margin-bottom: 8px; }
+        .feature-title { font-weight: 600; font-size: 0.88rem; color: var(--text-primary); margin-bottom: 4px; }
+        .feature-desc { font-size: 0.78rem; color: var(--text-muted); line-height: 1.4; }
+
+        /* ── Toolbar row ── */
+        .toolbar {
+            display: flex;
+            gap: 10px;
+            margin-top: 12px;
+        }
+        .toolbar .btn { flex: 1; }
+
+        /* ── Footer ── */
+        .footer {
+            text-align: center;
+            margin-top: 48px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border-subtle);
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            letter-spacing: 0.5px;
+        }
+
+        /* Smooth scroll */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--border-subtle); border-radius: 4px; }
     </style>
+    <!-- PDF.js for PDF text extraction -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <!-- Mammoth.js for DOCX text extraction -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
 </head>
 <body>
-    <div class="container">
-        <div class="credit">Produced by D. Chan in 2026</div>
+    <div class="app-shell">
         <div class="header">
+            <div class="credit">Produced by D. Chan in 2026</div>
             <h1>Medical Document Translator</h1>
-            <p>医学文档翻译器</p>
-            <div class="language-direction">
-                <button class="direction-btn active" id="btnEnToZh" onclick="setDirection('en-zh')">English &#10140; &#20013;&#25991;</button>
-                <button class="swap-btn" id="swapBtn" onclick="toggleDirection()" title="Swap languages">&#8644;</button>
-                <button class="direction-btn" id="btnZhToEn" onclick="setDirection('zh-en')">&#20013;&#25991; &#10140; English</button>
+            <p class="subtitle">医学文档翻译器 — Precision medical translation</p>
+
+            <div class="lang-bar">
+                <button class="lang-btn active" id="btnEnToZh" onclick="setDirection('en-zh')">English → 中文</button>
+                <button class="swap-btn" id="swapBtn" onclick="toggleDirection()" title="Swap languages">⇄</button>
+                <button class="lang-btn" id="btnZhToEn" onclick="setDirection('zh-en')">中文 → English</button>
+            </div>
+
+            <div class="variant-toggle" id="variantToggle">
+                <span class="variant-label">Chinese：</span>
+                <div class="variant-pill">
+                    <button class="variant-opt active" data-variant="simplified" onclick="setChineseVariant('simplified')">简体 Simplified</button>
+                    <button class="variant-opt" data-variant="traditional" onclick="setChineseVariant('traditional')">繁體 Traditional</button>
+                </div>
             </div>
         </div>
 
         <div class="card">
             <div class="tabs">
-                <button class="tab active" data-tab="text">Text Translation</button>
-                <button class="tab" data-tab="file">File Upload</button>
-                <button class="tab" data-tab="glossary">Medical Glossary</button>
+                <button class="tab active" data-tab="text"><span class="tab-icon">✎</span>Text</button>
+                <button class="tab" data-tab="file"><span class="tab-icon">⬆</span>File Upload</button>
+                <button class="tab" data-tab="glossary"><span class="tab-icon">☰</span>Glossary</button>
             </div>
 
             <!-- Text Translation Tab -->
             <div class="tab-content active" id="text-tab">
                 <div class="text-row">
                     <div class="text-box">
-                        <label id="inputLabel">English Text (英文)</label>
+                        <label id="inputLabel">Source — English</label>
                         <textarea id="inputText" placeholder="Enter or paste English medical text here..."></textarea>
                     </div>
                     <div class="text-box">
-                        <label id="outputLabel">Chinese Translation (中文翻译)</label>
+                        <label id="outputLabel">Translation — 中文</label>
                         <div class="output-display" id="outputText"></div>
                     </div>
                 </div>
-                <button class="btn" id="translateTextBtn">Translate to Chinese</button>
+                <button class="btn btn-primary" id="translateTextBtn">
+                    <span>⟶</span> Translate
+                </button>
                 <div class="progress-container" id="textProgress">
-                    <div class="progress-bar">
-                        <div class="progress-fill" id="textProgressFill"></div>
-                    </div>
+                    <div class="progress-bar"><div class="progress-fill" id="textProgressFill"></div></div>
                     <div class="progress-text" id="textProgressText">Translating...</div>
                 </div>
                 <div class="result-container" id="textResult">
-                    <div class="result-icon">&#10004;</div>
-                    <div class="result-title">Translation Complete!</div>
-                    <button class="btn btn-secondary" id="copyTextBtn">Copy Translation</button>
+                    <div class="result-icon">✓</div>
+                    <div class="result-title">Translation Complete</div>
+                    <div class="toolbar">
+                        <button class="btn btn-secondary" id="copyTextBtn">Copy Translation</button>
+                    </div>
                 </div>
             </div>
 
             <!-- File Upload Tab -->
             <div class="tab-content" id="file-tab">
                 <div class="upload-area" id="uploadArea">
-                    <div class="upload-icon">&#128196;</div>
+                    <div class="upload-icon">📄</div>
                     <div class="upload-text">Drop your document here</div>
-                    <div class="upload-hint">or click to browse (TXT, PDF, DOCX)</div>
+                    <div class="upload-hint">or click to browse — TXT, PDF, DOCX</div>
                     <input type="file" id="fileInput" accept=".txt,.pdf,.docx">
                 </div>
 
                 <div class="file-info" id="fileInfo">
-                    <span class="file-name" id="fileName"></span>
-                    <button class="remove-file" id="removeBtn">&times;</button>
+                    <div style="display:flex;flex-direction:column;gap:2px;">
+                        <span class="file-name" id="fileName"></span>
+                        <span style="font-size:0.78rem;color:var(--text-muted)" id="fileSize"></span>
+                    </div>
+                    <button class="remove-file" id="removeBtn">×</button>
                 </div>
 
-                <button class="btn" id="translateFileBtn" disabled>Translate Document</button>
+                <!-- Extracted text preview -->
+                <div id="extractedPreview" style="display:none;margin-bottom:16px;">
+                    <label style="display:block;font-size:0.78rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:8px;">Extracted Text Preview</label>
+                    <div class="output-display" id="extractedText" style="height:140px;font-size:0.85rem;"></div>
+                </div>
+
+                <button class="btn btn-primary" id="translateFileBtn" disabled>
+                    <span>⟶</span> Translate Document
+                </button>
 
                 <div class="progress-container" id="fileProgress">
-                    <div class="progress-bar">
-                        <div class="progress-fill" id="fileProgressFill"></div>
-                    </div>
+                    <div class="progress-bar"><div class="progress-fill" id="fileProgressFill"></div></div>
                     <div class="progress-text" id="fileProgressText">Processing...</div>
                 </div>
 
                 <div class="result-container" id="fileResult">
-                    <div class="result-icon">&#10004;</div>
-                    <div class="result-title">Translation Complete!</div>
-                    <a href="#" class="download-btn" id="downloadBtn">Download Translated Document</a>
+                    <div class="result-icon">✓</div>
+                    <div class="result-title">Translation Complete</div>
+                    <a href="#" class="download-btn" id="downloadBtn">⬇ Download Translated Document</a>
                 </div>
 
                 <div class="error-message" id="errorMessage"></div>
@@ -542,6 +636,10 @@
 
             <!-- Glossary Tab -->
             <div class="tab-content" id="glossary-tab">
+                <div class="search-wrapper">
+                    <span class="search-icon">⌕</span>
+                    <input type="text" class="glossary-search" id="glossarySearch" placeholder="Search medical terms...">
+                </div>
                 <div class="glossary" id="glossaryContainer"></div>
             </div>
 
@@ -550,404 +648,195 @@
 
         <div class="features">
             <div class="feature">
-                <div class="feature-icon">&#127760;</div>
+                <div class="feature-icon">🌐</div>
                 <div class="feature-title">API-Powered</div>
-                <div class="feature-desc">Uses free translation APIs</div>
+                <div class="feature-desc">Free translation engine with medical term override</div>
             </div>
             <div class="feature">
-                <div class="feature-icon">&#128138;</div>
-                <div class="feature-title">Medical Terminology</div>
-                <div class="feature-desc">200+ specialized terms</div>
+                <div class="feature-icon">💊</div>
+                <div class="feature-title">200+ Medical Terms</div>
+                <div class="feature-desc">Specialized dictionary for clinical accuracy</div>
             </div>
             <div class="feature">
-                <div class="feature-icon">&#128196;</div>
+                <div class="feature-icon">🔄</div>
+                <div class="feature-title">繁體 / 简体</div>
+                <div class="feature-desc">Simplified & Traditional Chinese support</div>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">📂</div>
                 <div class="feature-title">Multiple Formats</div>
-                <div class="feature-desc">TXT, PDF, DOCX supported</div>
+                <div class="feature-desc">TXT, PDF, DOCX file translation</div>
             </div>
         </div>
+
+        <div class="footer">Medical Document Translator — For reference only. Always verify with a qualified professional.</div>
     </div>
 
     <script>
-        // Medical Terms Dictionary
+        // ═══════════════════════════════════════════════
+        //  SIMPLIFIED CHINESE MEDICAL DICTIONARY
+        // ═══════════════════════════════════════════════
         const medicalTerms = {
-            // Diagnoses
-            'diabetes': '糖尿病',
-            'hypertension': '高血压',
-            'coronary artery disease': '冠状动脉疾病',
-            'myocardial infarction': '心肌梗死',
-            'heart attack': '心脏病发作',
-            'stroke': '中风',
-            'pneumonia': '肺炎',
-            'bronchitis': '支气管炎',
-            'asthma': '哮喘',
-            'cancer': '癌症',
-            'tumor': '肿瘤',
-            'malignant': '恶性',
-            'benign': '良性',
-            'infection': '感染',
-            'inflammation': '炎症',
-            'arthritis': '关节炎',
-            'osteoporosis': '骨质疏松症',
-            'anemia': '贫血',
-            'leukemia': '白血病',
-            'lymphoma': '淋巴瘤',
-            'hepatitis': '肝炎',
-            'cirrhosis': '肝硬化',
-            'kidney failure': '肾衰竭',
-            "alzheimer's disease": '阿尔茨海默病',
-            "parkinson's disease": '帕金森病',
-            'epilepsy': '癫痫',
-            'migraine': '偏头痛',
-            'depression': '抑郁症',
-            'anxiety disorder': '焦虑症',
-            'schizophrenia': '精神分裂症',
-            'covid-19': '新冠肺炎',
-            'influenza': '流感',
-            // Symptoms
-            'fever': '发热',
-            'headache': '头痛',
-            'dizziness': '头晕',
-            'nausea': '恶心',
-            'vomiting': '呕吐',
-            'diarrhea': '腹泻',
-            'constipation': '便秘',
-            'fatigue': '疲劳',
-            'chest pain': '胸痛',
-            'shortness of breath': '呼吸急促',
-            'cough': '咳嗽',
-            'sore throat': '喉咙痛',
-            'abdominal pain': '腹痛',
-            'joint pain': '关节痛',
-            'muscle pain': '肌肉疼痛',
-            'rash': '皮疹',
-            'itching': '瘙痒',
-            'swelling': '肿胀',
-            'bleeding': '出血',
-            'bruising': '瘀伤',
-            'weight loss': '体重减轻',
-            'weight gain': '体重增加',
-            'loss of appetite': '食欲不振',
-            'insomnia': '失眠',
-            'night sweats': '盗汗',
-            'palpitations': '心悸',
-            // Procedures
-            'surgery': '手术',
-            'biopsy': '活检',
-            'transfusion': '输血',
-            'dialysis': '透析',
-            'chemotherapy': '化疗',
-            'radiation therapy': '放疗',
-            'immunotherapy': '免疫治疗',
-            'physical therapy': '物理治疗',
-            'endoscopy': '内窥镜检查',
-            'colonoscopy': '结肠镜检查',
-            'gastroscopy': '胃镜检查',
-            'laparoscopy': '腹腔镜检查',
-            'mri': '磁共振成像',
-            'ct scan': 'CT 扫描',
-            'x-ray': 'X 光检查',
-            'ultrasound': '超声检查',
-            'ecg': '心电图',
-            'ekg': '心电图',
-            'blood test': '血液检查',
-            'urine test': '尿液检查',
-            // Medications
-            'antibiotic': '抗生素',
-            'antibiotics': '抗生素',
-            'analgesic': '止痛药',
-            'painkiller': '止痛药',
-            'antipyretic': '退烧药',
-            'antihistamine': '抗组胺药',
-            'anticoagulant': '抗凝剂',
-            'insulin': '胰岛素',
-            'vaccine': '疫苗',
-            'prescription': '处方',
-            'dosage': '剂量',
-            'tablet': '片剂',
-            'capsule': '胶囊',
-            'injection': '注射',
-            'infusion': '输液',
-            'ointment': '药膏',
-            'syrup': '糖浆',
-            // Anatomy
-            'heart': '心脏',
-            'lung': '肺',
-            'liver': '肝脏',
-            'kidney': '肾脏',
-            'stomach': '胃',
-            'intestine': '肠',
-            'brain': '大脑',
-            'spinal cord': '脊髓',
-            'bone': '骨',
-            'muscle': '肌肉',
-            'skin': '皮肤',
-            'blood': '血液',
-            'vein': '静脉',
-            'artery': '动脉',
-            'nerve': '神经',
-            'lymph node': '淋巴结',
-            'pancreas': '胰腺',
-            'spleen': '脾脏',
-            'gallbladder': '胆囊',
-            'bladder': '膀胱',
-            'uterus': '子宫',
-            'ovary': '卵巢',
-            'prostate': '前列腺',
-            'thyroid': '甲状腺',
-            // Medical Staff & Departments
-            'doctor': '医生',
-            'physician': '医师',
-            'surgeon': '外科医生',
-            'nurse': '护士',
-            'specialist': '专科医生',
-            'cardiologist': '心脏科医生',
-            'neurologist': '神经科医生',
-            'oncologist': '肿瘤科医生',
-            'pediatrician': '儿科医生',
-            'dermatologist': '皮肤科医生',
-            'psychiatrist': '精神科医生',
-            'radiologist': '放射科医生',
-            'anesthesiologist': '麻醉科医生',
-            'emergency': '急诊',
-            'outpatient': '门诊',
-            'inpatient': '住院',
-            'icu': '重症监护室',
-            'operating room': '手术室',
-            'laboratory': '实验室',
-            'pharmacy': '药房',
-            // Common Phrases
-            'medical history': '病史',
-            'family history': '家族史',
-            'allergies': '过敏史',
-            'current medications': '目前用药',
-            'chief complaint': '主诉',
-            'physical examination': '体格检查',
-            'vital signs': '生命体征',
-            'blood pressure': '血压',
-            'heart rate': '心率',
-            'temperature': '体温',
-            'respiratory rate': '呼吸频率',
-            'oxygen saturation': '血氧饱和度',
-            'diagnosis': '诊断',
-            'treatment': '治疗',
-            'treatment plan': '治疗方案',
-            'prognosis': '预后',
-            'follow-up': '随访',
-            'discharge': '出院',
-            'admission': '入院',
-            'consent form': '同意书',
-            'informed consent': '知情同意',
-            'side effects': '副作用',
-            'complications': '并发症',
-            'contraindications': '禁忌症',
-            'recovery': '康复',
-            'chronic': '慢性',
-            'acute': '急性',
-            'severe': '严重',
-            'mild': '轻度',
-            'moderate': '中度',
-            'normal': '正常',
-            'abnormal': '异常',
-            'positive': '阳性',
-            'negative': '阴性',
-            'patient': '患者',
-            'male': '男性',
-            'female': '女性',
-            'age': '年龄',
-            'date of birth': '出生日期',
+            'diabetes': '糖尿病', 'hypertension': '高血压', 'coronary artery disease': '冠状动脉疾病',
+            'myocardial infarction': '心肌梗死', 'heart attack': '心脏病发作', 'stroke': '中风',
+            'pneumonia': '肺炎', 'bronchitis': '支气管炎', 'asthma': '哮喘', 'cancer': '癌症',
+            'tumor': '肿瘤', 'malignant': '恶性', 'benign': '良性', 'infection': '感染',
+            'inflammation': '炎症', 'arthritis': '关节炎', 'osteoporosis': '骨质疏松症',
+            'anemia': '贫血', 'leukemia': '白血病', 'lymphoma': '淋巴瘤', 'hepatitis': '肝炎',
+            'cirrhosis': '肝硬化', 'kidney failure': '肾衰竭', "alzheimer's disease": '阿尔茨海默病',
+            "parkinson's disease": '帕金森病', 'epilepsy': '癫痫', 'migraine': '偏头痛',
+            'depression': '抑郁症', 'anxiety disorder': '焦虑症', 'schizophrenia': '精神分裂症',
+            'covid-19': '新冠肺炎', 'influenza': '流感',
+            'fever': '发热', 'headache': '头痛', 'dizziness': '头晕', 'nausea': '恶心',
+            'vomiting': '呕吐', 'diarrhea': '腹泻', 'constipation': '便秘', 'fatigue': '疲劳',
+            'chest pain': '胸痛', 'shortness of breath': '呼吸急促', 'cough': '咳嗽',
+            'sore throat': '喉咙痛', 'abdominal pain': '腹痛', 'joint pain': '关节痛',
+            'muscle pain': '肌肉疼痛', 'rash': '皮疹', 'itching': '瘙痒', 'swelling': '肿胀',
+            'bleeding': '出血', 'bruising': '瘀伤', 'weight loss': '体重减轻',
+            'weight gain': '体重增加', 'loss of appetite': '食欲不振', 'insomnia': '失眠',
+            'night sweats': '盗汗', 'palpitations': '心悸',
+            'surgery': '手术', 'biopsy': '活检', 'transfusion': '输血', 'dialysis': '透析',
+            'chemotherapy': '化疗', 'radiation therapy': '放疗', 'immunotherapy': '免疫治疗',
+            'physical therapy': '物理治疗', 'endoscopy': '内窥镜检查', 'colonoscopy': '结肠镜检查',
+            'gastroscopy': '胃镜检查', 'laparoscopy': '腹腔镜检查', 'mri': '磁共振成像',
+            'ct scan': 'CT扫描', 'x-ray': 'X光检查', 'ultrasound': '超声检查',
+            'ecg': '心电图', 'ekg': '心电图', 'blood test': '血液检查', 'urine test': '尿液检查',
+            'antibiotic': '抗生素', 'antibiotics': '抗生素', 'analgesic': '止痛药',
+            'painkiller': '止痛药', 'antipyretic': '退烧药', 'antihistamine': '抗组胺药',
+            'anticoagulant': '抗凝剂', 'insulin': '胰岛素', 'vaccine': '疫苗',
+            'prescription': '处方', 'dosage': '剂量', 'tablet': '片剂', 'capsule': '胶囊',
+            'injection': '注射', 'infusion': '输液', 'ointment': '药膏', 'syrup': '糖浆',
+            'heart': '心脏', 'lung': '肺', 'liver': '肝脏', 'kidney': '肾脏', 'stomach': '胃',
+            'intestine': '肠', 'brain': '大脑', 'spinal cord': '脊髓', 'bone': '骨',
+            'muscle': '肌肉', 'skin': '皮肤', 'blood': '血液', 'vein': '静脉', 'artery': '动脉',
+            'nerve': '神经', 'lymph node': '淋巴结', 'pancreas': '胰腺', 'spleen': '脾脏',
+            'gallbladder': '胆囊', 'bladder': '膀胱', 'uterus': '子宫', 'ovary': '卵巢',
+            'prostate': '前列腺', 'thyroid': '甲状腺',
+            'doctor': '医生', 'physician': '医师', 'surgeon': '外科医生', 'nurse': '护士',
+            'specialist': '专科医生', 'cardiologist': '心脏科医生', 'neurologist': '神经科医生',
+            'oncologist': '肿瘤科医生', 'pediatrician': '儿科医生', 'dermatologist': '皮肤科医生',
+            'psychiatrist': '精神科医生', 'radiologist': '放射科医生',
+            'anesthesiologist': '麻醉科医生', 'emergency': '急诊', 'outpatient': '门诊',
+            'inpatient': '住院', 'icu': '重症监护室', 'operating room': '手术室',
+            'laboratory': '实验室', 'pharmacy': '药房',
+            'medical history': '病史', 'family history': '家族史', 'allergies': '过敏史',
+            'current medications': '目前用药', 'chief complaint': '主诉',
+            'physical examination': '体格检查', 'vital signs': '生命体征', 'blood pressure': '血压',
+            'heart rate': '心率', 'temperature': '体温', 'respiratory rate': '呼吸频率',
+            'oxygen saturation': '血氧饱和度', 'diagnosis': '诊断', 'treatment': '治疗',
+            'treatment plan': '治疗方案', 'prognosis': '预后', 'follow-up': '随访',
+            'discharge': '出院', 'admission': '入院', 'consent form': '同意书',
+            'informed consent': '知情同意', 'side effects': '副作用', 'complications': '并发症',
+            'contraindications': '禁忌症', 'recovery': '康复', 'chronic': '慢性', 'acute': '急性',
+            'severe': '严重', 'mild': '轻度', 'moderate': '中度', 'normal': '正常',
+            'abnormal': '异常', 'positive': '阳性', 'negative': '阴性', 'patient': '患者',
+            'male': '男性', 'female': '女性', 'age': '年龄', 'date of birth': '出生日期',
             'medical record number': '病历号'
         };
 
-        // Reverse dictionary (Chinese to English)
-        const medicalTermsReverse = {
-            '糖尿病': 'diabetes',
-            '高血压': 'hypertension',
-            '冠状动脉疾病': 'coronary artery disease',
-            '心肌梗死': 'myocardial infarction',
-            '心脏病发作': 'heart attack',
-            '中风': 'stroke',
-            '肺炎': 'pneumonia',
-            '支气管炎': 'bronchitis',
-            '哮喘': 'asthma',
-            '癌症': 'cancer',
-            '肿瘤': 'tumor',
-            '恶性': 'malignant',
-            '良性': 'benign',
-            '感染': 'infection',
-            '炎症': 'inflammation',
-            '关节炎': 'arthritis',
-            '骨质疏松症': 'osteoporosis',
-            '贫血': 'anemia',
-            '白血病': 'leukemia',
-            '淋巴瘤': 'lymphoma',
-            '肝炎': 'hepatitis',
-            '肝硬化': 'cirrhosis',
-            '肾衰竭': 'kidney failure',
-            '阿尔茨海默病': "Alzheimer's disease",
-            '帕金森病': "Parkinson's disease",
-            '癫痫': 'epilepsy',
-            '偏头痛': 'migraine',
-            '抑郁症': 'depression',
-            '焦虑症': 'anxiety disorder',
-            '精神分裂症': 'schizophrenia',
-            '新冠肺炎': 'COVID-19',
-            '流感': 'influenza',
-            '发热': 'fever',
-            '头痛': 'headache',
-            '头晕': 'dizziness',
-            '恶心': 'nausea',
-            '呕吐': 'vomiting',
-            '腹泻': 'diarrhea',
-            '便秘': 'constipation',
-            '疲劳': 'fatigue',
-            '胸痛': 'chest pain',
-            '呼吸急促': 'shortness of breath',
-            '咳嗽': 'cough',
-            '喉咙痛': 'sore throat',
-            '腹痛': 'abdominal pain',
-            '关节痛': 'joint pain',
-            '肌肉疼痛': 'muscle pain',
-            '皮疹': 'rash',
-            '瘙痒': 'itching',
-            '肿胀': 'swelling',
-            '出血': 'bleeding',
-            '瘀伤': 'bruising',
-            '体重减轻': 'weight loss',
-            '体重增加': 'weight gain',
-            '食欲不振': 'loss of appetite',
-            '失眠': 'insomnia',
-            '盗汗': 'night sweats',
-            '心悸': 'palpitations',
-            '手术': 'surgery',
-            '活检': 'biopsy',
-            '输血': 'transfusion',
-            '透析': 'dialysis',
-            '化疗': 'chemotherapy',
-            '放疗': 'radiation therapy',
-            '免疫治疗': 'immunotherapy',
-            '物理治疗': 'physical therapy',
-            '内窥镜检查': 'endoscopy',
-            '结肠镜检查': 'colonoscopy',
-            '胃镜检查': 'gastroscopy',
-            '腹腔镜检查': 'laparoscopy',
-            '磁共振成像': 'MRI',
-            'CT 扫描': 'CT scan',
-            'X 光检查': 'X-ray',
-            '超声检查': 'ultrasound',
-            '心电图': 'ECG',
-            '血液检查': 'blood test',
-            '尿液检查': 'urine test',
-            '抗生素': 'antibiotic',
-            '止痛药': 'painkiller',
-            '退烧药': 'antipyretic',
-            '抗组胺药': 'antihistamine',
-            '抗凝剂': 'anticoagulant',
-            '胰岛素': 'insulin',
-            '疫苗': 'vaccine',
-            '处方': 'prescription',
-            '剂量': 'dosage',
-            '片剂': 'tablet',
-            '胶囊': 'capsule',
-            '注射': 'injection',
-            '输液': 'infusion',
-            '药膏': 'ointment',
-            '糖浆': 'syrup',
-            '心脏': 'heart',
-            '肺': 'lung',
-            '肝脏': 'liver',
-            '肾脏': 'kidney',
-            '胃': 'stomach',
-            '肠': 'intestine',
-            '大脑': 'brain',
-            '脊髓': 'spinal cord',
-            '骨': 'bone',
-            '肌肉': 'muscle',
-            '皮肤': 'skin',
-            '血液': 'blood',
-            '静脉': 'vein',
-            '动脉': 'artery',
-            '神经': 'nerve',
-            '淋巴结': 'lymph node',
-            '胰腺': 'pancreas',
-            '脾脏': 'spleen',
-            '胆囊': 'gallbladder',
-            '膀胱': 'bladder',
-            '子宫': 'uterus',
-            '卵巢': 'ovary',
-            '前列腺': 'prostate',
-            '甲状腺': 'thyroid',
-            '医生': 'doctor',
-            '医师': 'physician',
-            '外科医生': 'surgeon',
-            '护士': 'nurse',
-            '专科医生': 'specialist',
-            '心脏科医生': 'cardiologist',
-            '神经科医生': 'neurologist',
-            '肿瘤科医生': 'oncologist',
-            '儿科医生': 'pediatrician',
-            '皮肤科医生': 'dermatologist',
-            '精神科医生': 'psychiatrist',
-            '放射科医生': 'radiologist',
-            '麻醉科医生': 'anesthesiologist',
-            '急诊': 'emergency',
-            '门诊': 'outpatient',
-            '住院': 'inpatient',
-            '重症监护室': 'ICU',
-            '手术室': 'operating room',
-            '实验室': 'laboratory',
-            '药房': 'pharmacy',
-            '病史': 'medical history',
-            '家族史': 'family history',
-            '过敏史': 'allergies',
-            '目前用药': 'current medications',
-            '主诉': 'chief complaint',
-            '体格检查': 'physical examination',
-            '生命体征': 'vital signs',
-            '血压': 'blood pressure',
-            '心率': 'heart rate',
-            '体温': 'temperature',
-            '呼吸频率': 'respiratory rate',
-            '血氧饱和度': 'oxygen saturation',
-            '诊断': 'diagnosis',
-            '治疗': 'treatment',
-            '治疗方案': 'treatment plan',
-            '预后': 'prognosis',
-            '随访': 'follow-up',
-            '出院': 'discharge',
-            '入院': 'admission',
-            '同意书': 'consent form',
-            '知情同意': 'informed consent',
-            '副作用': 'side effects',
-            '并发症': 'complications',
-            '禁忌症': 'contraindications',
-            '康复': 'recovery',
-            '慢性': 'chronic',
-            '急性': 'acute',
-            '严重': 'severe',
-            '轻度': 'mild',
-            '中度': 'moderate',
-            '正常': 'normal',
-            '异常': 'abnormal',
-            '阳性': 'positive',
-            '阴性': 'negative',
-            '患者': 'patient',
-            '男性': 'male',
-            '女性': 'female',
-            '年龄': 'age',
-            '出生日期': 'date of birth',
-            '病历号': 'medical record number'
+        // ═══════════════════════════════════════════════
+        //  SIMPLIFIED → TRADITIONAL CHINESE MAP
+        // ═══════════════════════════════════════════════
+        const simplifiedToTraditional = {
+            '糖尿病':'糖尿病','高血压':'高血壓','冠状动脉疾病':'冠狀動脈疾病',
+            '心肌梗死':'心肌梗死','心脏病发作':'心臟病發作','中风':'中風',
+            '肺炎':'肺炎','支气管炎':'支氣管炎','哮喘':'哮喘','癌症':'癌症',
+            '肿瘤':'腫瘤','恶性':'惡性','良性':'良性','感染':'感染',
+            '炎症':'炎症','关节炎':'關節炎','骨质疏松症':'骨質疏鬆症',
+            '贫血':'貧血','白血病':'白血病','淋巴瘤':'淋巴瘤','肝炎':'肝炎',
+            '肝硬化':'肝硬化','肾衰竭':'腎衰竭','阿尔茨海默病':'阿爾茨海默病',
+            '帕金森病':'帕金森病','癫痫':'癲癇','偏头痛':'偏頭痛',
+            '抑郁症':'抑鬱症','焦虑症':'焦慮症','精神分裂症':'精神分裂症',
+            '新冠肺炎':'新冠肺炎','流感':'流感',
+            '发热':'發熱','头痛':'頭痛','头晕':'頭暈','恶心':'噁心',
+            '呕吐':'嘔吐','腹泻':'腹瀉','便秘':'便秘','疲劳':'疲勞',
+            '胸痛':'胸痛','呼吸急促':'呼吸急促','咳嗽':'咳嗽',
+            '喉咙痛':'喉嚨痛','腹痛':'腹痛','关节痛':'關節痛',
+            '肌肉疼痛':'肌肉疼痛','皮疹':'皮疹','瘙痒':'搔癢','肿胀':'腫脹',
+            '出血':'出血','瘀伤':'瘀傷','体重减轻':'體重減輕',
+            '体重增加':'體重增加','食欲不振':'食慾不振','失眠':'失眠',
+            '盗汗':'盜汗','心悸':'心悸',
+            '手术':'手術','活检':'活檢','输血':'輸血','透析':'透析',
+            '化疗':'化療','放疗':'放療','免疫治疗':'免疫治療',
+            '物理治疗':'物理治療','内窥镜检查':'內窺鏡檢查','结肠镜检查':'結腸鏡檢查',
+            '胃镜检查':'胃鏡檢查','腹腔镜检查':'腹腔鏡檢查','磁共振成像':'磁共振成像',
+            'CT扫描':'CT掃描','X光检查':'X光檢查','超声检查':'超聲檢查',
+            '心电图':'心電圖','血液检查':'血液檢查','尿液检查':'尿液檢查',
+            '抗生素':'抗生素','止痛药':'止痛藥','退烧药':'退燒藥',
+            '抗组胺药':'抗組胺藥','抗凝剂':'抗凝劑','胰岛素':'胰島素','疫苗':'疫苗',
+            '处方':'處方','剂量':'劑量','片剂':'片劑','胶囊':'膠囊',
+            '注射':'注射','输液':'輸液','药膏':'藥膏','糖浆':'糖漿',
+            '心脏':'心臟','肺':'肺','肝脏':'肝臟','肾脏':'腎臟','胃':'胃',
+            '肠':'腸','大脑':'大腦','脊髓':'脊髓','骨':'骨',
+            '肌肉':'肌肉','皮肤':'皮膚','血液':'血液','静脉':'靜脈','动脉':'動脈',
+            '神经':'神經','淋巴结':'淋巴結','胰腺':'胰腺','脾脏':'脾臟',
+            '胆囊':'膽囊','膀胱':'膀胱','子宫':'子宮','卵巢':'卵巢',
+            '前列腺':'前列腺','甲状腺':'甲狀腺',
+            '医生':'醫生','医师':'醫師','外科医生':'外科醫生','护士':'護士',
+            '专科医生':'專科醫生','心脏科医生':'心臟科醫生','神经科医生':'神經科醫生',
+            '肿瘤科医生':'腫瘤科醫生','儿科医生':'兒科醫生','皮肤科医生':'皮膚科醫生',
+            '精神科医生':'精神科醫生','放射科医生':'放射科醫生',
+            '麻醉科医生':'麻醉科醫生','急诊':'急診','门诊':'門診',
+            '住院':'住院','重症监护室':'重症監護室','手术室':'手術室',
+            '实验室':'實驗室','药房':'藥房',
+            '病史':'病史','家族史':'家族史','过敏史':'過敏史',
+            '目前用药':'目前用藥','主诉':'主訴',
+            '体格检查':'體格檢查','生命体征':'生命體徵','血压':'血壓',
+            '心率':'心率','体温':'體溫','呼吸频率':'呼吸頻率',
+            '血氧饱和度':'血氧飽和度','诊断':'診斷','治疗':'治療',
+            '治疗方案':'治療方案','预后':'預後','随访':'隨訪',
+            '出院':'出院','入院':'入院','同意书':'同意書',
+            '知情同意':'知情同意','副作用':'副作用','并发症':'併發症',
+            '禁忌症':'禁忌症','康复':'康復','慢性':'慢性','急性':'急性',
+            '严重':'嚴重','轻度':'輕度','中度':'中度','正常':'正常',
+            '异常':'異常','阳性':'陽性','阴性':'陰性','患者':'患者',
+            '男性':'男性','女性':'女性','年龄':'年齡','出生日期':'出生日期',
+            '病历号':'病歷號'
         };
 
-        // Glossary categories
+        // Build Traditional Chinese medical terms dict from simplified
+        function buildTraditionalDict() {
+            const trad = {};
+            for (const [en, zhSimp] of Object.entries(medicalTerms)) {
+                trad[en] = simplifiedToTraditional[zhSimp] || zhSimp;
+            }
+            return trad;
+        }
+        const medicalTermsTraditional = buildTraditionalDict();
+
+        // Reverse dictionaries
+        function buildReverse(dict) {
+            const rev = {};
+            for (const [en, zh] of Object.entries(dict)) {
+                rev[zh] = en.charAt(0).toUpperCase() + en.slice(1);
+            }
+            return rev;
+        }
+        const medicalTermsReverse = buildReverse(medicalTerms);
+        const medicalTermsReverseTraditional = buildReverse(medicalTermsTraditional);
+
+        // ═══════════════════════════════════════════════
+        //  STATE
+        // ═══════════════════════════════════════════════
+        let selectedFile = null;
+        let translatedContent = '';
+        let currentDirection = 'en-zh';
+        let chineseVariant = 'simplified'; // 'simplified' or 'traditional'
+
+        // ═══════════════════════════════════════════════
+        //  GLOSSARY CATEGORIES
+        // ═══════════════════════════════════════════════
         const glossaryCategories = {
-            'Diagnoses (诊断)': ['diabetes', 'hypertension', 'cancer', 'pneumonia', 'stroke', 'heart attack'],
-            'Symptoms (症状)': ['fever', 'headache', 'nausea', 'fatigue', 'chest pain', 'dizziness'],
-            'Procedures (检查/手术)': ['surgery', 'biopsy', 'mri', 'ct scan', 'x-ray', 'blood test'],
-            'Medications (药物)': ['antibiotic', 'insulin', 'vaccine', 'painkiller', 'injection'],
-            'Anatomy (解剖)': ['heart', 'lung', 'liver', 'kidney', 'brain', 'stomach']
+            'Diagnoses 诊断': ['diabetes','hypertension','cancer','pneumonia','stroke','heart attack','asthma','hepatitis','depression','epilepsy'],
+            'Symptoms 症状': ['fever','headache','nausea','fatigue','chest pain','dizziness','cough','insomnia','palpitations','shortness of breath'],
+            'Procedures 检查': ['surgery','biopsy','mri','ct scan','x-ray','blood test','ultrasound','chemotherapy','dialysis','endoscopy'],
+            'Medications 药物': ['antibiotic','insulin','vaccine','painkiller','injection','prescription','capsule','ointment','anticoagulant','antihistamine'],
+            'Anatomy 解剖': ['heart','lung','liver','kidney','brain','stomach','spinal cord','pancreas','thyroid','bladder']
         };
 
-        // DOM Elements
+        // ═══════════════════════════════════════════════
+        //  DOM ELEMENTS
+        // ═══════════════════════════════════════════════
         const tabs = document.querySelectorAll('.tab');
         const tabContents = document.querySelectorAll('.tab-content');
         const inputText = document.getElementById('inputText');
@@ -969,325 +858,515 @@
         const fileProgressText = document.getElementById('fileProgressText');
         const fileResult = document.getElementById('fileResult');
         const downloadBtn = document.getElementById('downloadBtn');
-        const errorMessage = document.getElementById('errorMessage');
-        const globalError = document.getElementById('globalError');
         const glossaryContainer = document.getElementById('glossaryContainer');
+        const glossarySearch = document.getElementById('glossarySearch');
 
-        let selectedFile = null;
-        let translatedContent = '';
-        let currentDirection = 'en-zh'; // 'en-zh' or 'zh-en'
+        // ═══════════════════════════════════════════════
+        //  CHINESE VARIANT
+        // ═══════════════════════════════════════════════
+        function setChineseVariant(variant) {
+            chineseVariant = variant;
+            document.querySelectorAll('.variant-opt').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.variant === variant);
+            });
+            buildGlossary();
+        }
 
-        // Set translation direction
+        function getActiveDict() {
+            if (currentDirection === 'en-zh') {
+                return chineseVariant === 'traditional' ? medicalTermsTraditional : medicalTerms;
+            } else {
+                return chineseVariant === 'traditional' ? medicalTermsReverseTraditional : medicalTermsReverse;
+            }
+        }
+
+        // ═══════════════════════════════════════════════
+        //  DIRECTION
+        // ═══════════════════════════════════════════════
         function setDirection(direction) {
             currentDirection = direction;
             const btnEnToZh = document.getElementById('btnEnToZh');
             const btnZhToEn = document.getElementById('btnZhToEn');
             const inputLabel = document.getElementById('inputLabel');
             const outputLabel = document.getElementById('outputLabel');
-            const translateBtn = document.getElementById('translateTextBtn');
 
             if (direction === 'en-zh') {
                 btnEnToZh.classList.add('active');
                 btnZhToEn.classList.remove('active');
-                inputLabel.textContent = 'English Text (英文)';
-                outputLabel.textContent = 'Chinese Translation (中文翻译)';
-                translateBtn.textContent = 'Translate to Chinese';
-                document.getElementById('inputText').placeholder = 'Enter or paste English medical text here...';
+                inputLabel.textContent = 'Source — English';
+                outputLabel.textContent = 'Translation — 中文';
+                inputText.placeholder = 'Enter or paste English medical text here...';
             } else {
                 btnZhToEn.classList.add('active');
                 btnEnToZh.classList.remove('active');
-                inputLabel.textContent = 'Chinese Text (中文)';
-                outputLabel.textContent = 'English Translation (英文翻译)';
-                translateBtn.textContent = 'Translate to English';
-                document.getElementById('inputText').placeholder = '输入或粘贴中文医学文本...';
+                inputLabel.textContent = 'Source — 中文';
+                outputLabel.textContent = 'Translation — English';
+                inputText.placeholder = '输入或粘贴中文医学文本...';
             }
         }
 
-        // Toggle direction
         function toggleDirection() {
             setDirection(currentDirection === 'en-zh' ? 'zh-en' : 'en-zh');
         }
 
-        // Tab switching
+        // ═══════════════════════════════════════════════
+        //  TABS
+        // ═══════════════════════════════════════════════
         tabs.forEach(tab => {
             tab.addEventListener('click', () => {
                 const tabId = tab.dataset.tab;
-
                 tabs.forEach(t => t.classList.remove('active'));
                 tabContents.forEach(c => c.classList.remove('active'));
-
                 tab.classList.add('active');
                 document.getElementById(`${tabId}-tab`).classList.add('active');
             });
         });
 
-        // Build glossary
-        function buildGlossary() {
+        // ═══════════════════════════════════════════════
+        //  GLOSSARY
+        // ═══════════════════════════════════════════════
+        function buildGlossary(filter = '') {
+            const dict = chineseVariant === 'traditional' ? medicalTermsTraditional : medicalTerms;
+            const filterLower = filter.toLowerCase();
             let html = '';
             for (const [category, terms] of Object.entries(glossaryCategories)) {
-                html += `<div class="glossary-section"><h4>${category}</h4><table><tr><th>English</th><th>Chinese</th></tr>`;
-                for (const term of terms) {
-                    html += `<tr><td>${term}</td><td>${medicalTerms[term]}</td></tr>`;
+                const filtered = terms.filter(t => {
+                    if (!filter) return true;
+                    return t.toLowerCase().includes(filterLower) || (dict[t] || '').includes(filter);
+                });
+                if (filtered.length === 0) continue;
+                html += `<div class="glossary-section"><h4>${category}</h4><table><tr><th>English</th><th>${chineseVariant === 'traditional' ? '繁體中文' : '简体中文'}</th></tr>`;
+                for (const term of filtered) {
+                    html += `<tr><td>${term}</td><td>${dict[term] || ''}</td></tr>`;
                 }
                 html += '</table></div>';
             }
+            if (!html) html = '<div style="padding:32px;text-align:center;color:var(--text-muted)">No matching terms found.</div>';
             glossaryContainer.innerHTML = html;
         }
         buildGlossary();
 
-        // Translation function using MyMemory API (free, no key required)
+        glossarySearch.addEventListener('input', (e) => {
+            buildGlossary(e.target.value.trim());
+        });
+
+        // ═══════════════════════════════════════════════
+        //  SIMPLIFIED ↔ TRADITIONAL CONVERSION (full text)
+        // ═══════════════════════════════════════════════
+        // Comprehensive character-level conversion map for common medical text
+        const s2tCharMap = {};
+        // Build from our term pairs
+        for (const [simp, trad] of Object.entries(simplifiedToTraditional)) {
+            for (let i = 0; i < simp.length; i++) {
+                if (simp[i] !== trad[i] && simp.charCodeAt(i) > 127) {
+                    s2tCharMap[simp[i]] = trad[i];
+                }
+            }
+        }
+        // Additional common medical/general characters
+        Object.assign(s2tCharMap, {
+            '与':'與','为':'為','义':'義','书':'書','买':'買','于':'於','云':'雲','产':'產',
+            '亲':'親','人':'人','从':'從','众':'眾','会':'會','传':'傳','体':'體','余':'餘',
+            '佣':'傭','侠':'俠','侣':'侶','侦':'偵','侧':'側','华':'華','单':'單','卖':'賣',
+            '卫':'衛','历':'歷','厂':'廠','发':'發','变':'變','号':'號','叶':'葉','听':'聽',
+            '响':'響','团':'團','园':'園','围':'圍','图':'圖','国':'國','圣':'聖','场':'場',
+            '坏':'壞','块':'塊','坚':'堅','壮':'壯','声':'聲','处':'處','备':'備','头':'頭',
+            '夹':'夾','奋':'奮','妇':'婦','学':'學','宝':'寶','实':'實','审':'審','对':'對',
+            '导':'導','层':'層','岁':'歲','币':'幣','师':'師','帅':'帥','带':'帶','广':'廣',
+            '庄':'莊','庆':'慶','应':'應','开':'開','异':'異','张':'張','归':'歸','当':'當',
+            '录':'錄','总':'總','惊':'驚','战':'戰','扩':'擴','护':'護','报':'報','担':'擔',
+            '择':'擇','损':'損','换':'換','据':'據','掷':'擲','搜':'搜','携':'攜','摄':'攝',
+            '数':'數','断':'斷','时':'時','显':'顯','术':'術','机':'機','权':'權','条':'條',
+            '来':'來','杂':'雜','标':'標','样':'樣','档':'檔','检':'檢','楼':'樓','业':'業',
+            '极':'極','构':'構','查':'查','标':'標','树':'樹','样':'樣','桥':'橋','档':'檔',
+            '欢':'歡','款':'款','残':'殘','毕':'畢','气':'氣','汇':'匯','没':'沒','沟':'溝',
+            '泽':'澤','济':'濟','浅':'淺','测':'測','济':'濟','温':'溫','湿':'濕','灭':'滅',
+            '点':'點','热':'熱','爱':'愛','牺':'犧','独':'獨','现':'現','环':'環','电':'電',
+            '画':'畫','畅':'暢','疗':'療','症':'症','痴':'癡','盐':'鹽','监':'監','盘':'盤',
+            '盖':'蓋','确':'確','码':'碼','础':'礎','祸':'禍','离':'離','种':'種','积':'積',
+            '称':'稱','程':'程','稳':'穩','穷':'窮','窃':'竊','窍':'竅','类':'類','约':'約',
+            '级':'級','纪':'紀','纯':'純','纲':'綱','线':'線','组':'組','细':'細','织':'織',
+            '终':'終','经':'經','给':'給','继':'繼','绝':'絕','统':'統','维':'維','缺':'缺',
+            '网':'網','罗':'羅','翻':'翻','职':'職','联':'聯','脏':'臟','脑':'腦','腊':'臘',
+            '节':'節','营':'營','获':'獲','药':'藥','虑':'慮','虽':'雖','蛋':'蛋','蜡':'蠟',
+            '补':'補','装':'裝','观':'觀','规':'規','视':'視','觉':'覺','览':'覽','认':'認',
+            '让':'讓','议':'議','记':'記','讲':'講','许':'許','论':'論','设':'設','访':'訪',
+            '证':'證','评':'評','识':'識','词':'詞','诊':'診','译':'譯','试':'試','话':'話',
+            '详':'詳','语':'語','误':'誤','说':'說','请':'請','读':'讀','调':'調','谁':'誰',
+            '谈':'談','谢':'謝','质':'質','贝':'貝','费':'費','资':'資','赵':'趙','赶':'趕',
+            '过':'過','运':'運','还':'還','这':'這','进':'進','远':'遠','连':'連','迟':'遲',
+            '适':'適','选':'選','通':'通','速':'速','造':'造','逻':'邏','遗':'遺','邮':'郵',
+            '邻':'鄰','采':'採','释':'釋','里':'裡','针':'針','钟':'鐘','钢':'鋼','铁':'鐵',
+            '铜':'銅','银':'銀','销':'銷','锁':'鎖','错':'錯','长':'長','门':'門','间':'間',
+            '闭':'閉','问':'問','闻':'聞','阅':'閱','队':'隊','阳':'陽','阴':'陰','阶':'階',
+            '际':'際','陆':'陸','险':'險','随':'隨','难':'難','雾':'霧','顶':'頂','顺':'順',
+            '须':'須','领':'領','频':'頻','题':'題','风':'風','饭':'飯','饮':'飲','马':'馬',
+            '验':'驗','鸡':'雞','鸟':'鳥','鱼':'魚','齐':'齊','齿':'齒','龄':'齡','龙':'龍',
+        });
+
+        function simpToTrad(text) {
+            let result = '';
+            for (const ch of text) {
+                result += s2tCharMap[ch] || ch;
+            }
+            return result;
+        }
+
+        // ═══════════════════════════════════════════════
+        //  TRANSLATION (chunked for API limits)
+        // ═══════════════════════════════════════════════
+
+        // MyMemory API has a ~500 char limit per request.
+        // We split by paragraphs first, then by sentences, and chunk
+        // sentences together up to the limit.
+        const API_CHAR_LIMIT = 450;
+
         async function translateText(text, direction) {
             if (!text || !text.trim()) return '';
 
+            const isToTraditional = chineseVariant === 'traditional';
             const langPair = direction === 'en-zh' ? 'en|zh' : 'zh|en';
-            const dictionary = direction === 'en-zh' ? medicalTerms : medicalTermsReverse;
+            const dictionary = direction === 'en-zh'
+                ? (isToTraditional ? medicalTermsTraditional : medicalTerms)
+                : (isToTraditional ? medicalTermsReverseTraditional : medicalTermsReverse);
 
-            // Split text into sentences for better translation
-            const sentences = text.split(/(?<=[.!?。！？])\s*/).filter(s => s.trim());
-            let translatedSentences = [];
+            const sortedTerms = Object.entries(dictionary).sort((a, b) => b[0].length - a[0].length);
 
-            for (const sentence of sentences) {
-                if (!sentence.trim()) continue;
+            // Split into paragraphs (preserve structure)
+            const paragraphs = text.split(/\n\s*\n/).filter(p => p.trim());
+            let translatedParagraphs = [];
 
-                // Step 1: Apply medical dictionary replacements first
-                let processedSentence = sentence;
-                const sortedTerms = Object.entries(dictionary).sort((a, b) => b[0].length - a[0].length);
+            for (const para of paragraphs) {
+                // Split paragraph into sentences
+                const sentences = para.split(/(?<=[.!?。！？;；])\s*/).filter(s => s.trim());
 
-                for (const [term, translation] of sortedTerms) {
-                    const regex = new RegExp(term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
-                    processedSentence = processedSentence.replace(regex, translation);
-                }
-
-                // Step 2: Check if translation is needed via API
-                const needsApi = direction === 'en-zh'
-                    ? processedSentence.match(/[a-zA-Z]{3,}/g)
-                    : processedSentence.match(/[\u4e00-\u9fff]{2,}/g);
-
-                if (needsApi && needsApi.length > 0) {
-                    // Use API for the whole sentence
-                    try {
-                        const response = await fetch(
-                            `https://api.mymemory.translated.net/get?q=${encodeURIComponent(sentence)}&langpair=${langPair}`
-                        );
-                        const data = await response.json();
-                        if (data.responseData && data.responseData.translatedText) {
-                            // Apply medical terms to ensure consistency
-                            let apiResult = data.responseData.translatedText;
-                            for (const [term, translation] of sortedTerms) {
-                                const regex = new RegExp(term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
-                                apiResult = apiResult.replace(regex, translation);
-                            }
-                            translatedSentences.push(apiResult);
-                        } else {
-                            translatedSentences.push(processedSentence);
-                        }
-                    } catch (e) {
-                        translatedSentences.push(processedSentence);
+                // Build chunks of sentences that fit within API limit
+                const chunks = [];
+                let currentChunk = '';
+                for (const sentence of sentences) {
+                    if (currentChunk && (currentChunk.length + sentence.length + 1) > API_CHAR_LIMIT) {
+                        chunks.push(currentChunk);
+                        currentChunk = sentence;
+                    } else {
+                        currentChunk = currentChunk ? currentChunk + ' ' + sentence : sentence;
                     }
-                } else {
-                    // Mostly translated - use dictionary result
-                    translatedSentences.push(processedSentence);
+                }
+                if (currentChunk) chunks.push(currentChunk);
+
+                // If a single sentence exceeds the limit, split it further
+                const finalChunks = [];
+                for (const chunk of chunks) {
+                    if (chunk.length > API_CHAR_LIMIT) {
+                        // Split by commas, semicolons, or at limit
+                        const subParts = chunk.match(new RegExp(`.{1,${API_CHAR_LIMIT}}(?=[,;，；]|$)`, 'g')) 
+                            || chunk.match(new RegExp(`.{1,${API_CHAR_LIMIT}}`, 'g'))
+                            || [chunk];
+                        finalChunks.push(...subParts);
+                    } else {
+                        finalChunks.push(chunk);
+                    }
                 }
 
-                // Rate limiting
-                await new Promise(r => setTimeout(r, 50));
+                // Translate each chunk
+                let translatedChunks = [];
+                for (const chunk of finalChunks) {
+                    const translated = await translateChunk(chunk, langPair, sortedTerms, direction, isToTraditional);
+                    translatedChunks.push(translated);
+                    // Rate limiting — be gentle with the free API
+                    await new Promise(r => setTimeout(r, 100));
+                }
+                translatedParagraphs.push(translatedChunks.join(' '));
             }
 
-            return translatedSentences.join(' ');
+            return translatedParagraphs.join('\n\n');
         }
 
-        // Text translation
+        async function translateChunk(text, langPair, sortedTerms, direction, isToTraditional) {
+            // Step 1: Apply medical dictionary
+            let processed = text;
+            for (const [term, translation] of sortedTerms) {
+                const regex = new RegExp(term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
+                processed = processed.replace(regex, translation);
+            }
+
+            // Step 2: Check if API call is needed
+            const needsApi = direction === 'en-zh'
+                ? processed.match(/[a-zA-Z]{3,}/g)
+                : processed.match(/[\u4e00-\u9fff]{2,}/g);
+
+            if (!needsApi || needsApi.length === 0) {
+                return processed; // Dictionary handled everything
+            }
+
+            // Step 3: Call API
+            try {
+                const response = await fetch(
+                    `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${langPair}`
+                );
+                if (!response.ok) {
+                    console.warn('API returned status', response.status, '— using dictionary fallback');
+                    return processed;
+                }
+                const data = await response.json();
+
+                if (data.responseData && data.responseData.translatedText &&
+                    data.responseData.translatedText !== text) {
+                    let apiResult = data.responseData.translatedText;
+                    // Re-apply medical terms to ensure consistency
+                    for (const [term, translation] of sortedTerms) {
+                        const regex = new RegExp(term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
+                        apiResult = apiResult.replace(regex, translation);
+                    }
+                    // Convert to traditional if needed
+                    if (direction === 'en-zh' && isToTraditional) {
+                        apiResult = simpToTrad(apiResult);
+                    }
+                    return apiResult;
+                }
+                return processed;
+            } catch (e) {
+                console.warn('API call failed:', e.message, '— using dictionary fallback');
+                return processed;
+            }
+        }
+
+        // ═══════════════════════════════════════════════
+        //  TEXT TRANSLATION HANDLER
+        // ═══════════════════════════════════════════════
         translateTextBtn.addEventListener('click', async () => {
             const text = inputText.value.trim();
-            if (!text) {
-                showError('Please enter text to translate', 'globalError');
-                return;
-            }
+            if (!text) { showError('Please enter text to translate', 'globalError'); return; }
 
             translateTextBtn.disabled = true;
             textProgress.classList.add('show');
             textResult.classList.remove('show');
             hideError('globalError');
+            textProgressFill.style.width = '0%';
+            textProgressText.textContent = 'Translating...';
 
             try {
                 let progress = 0;
                 const progressInterval = setInterval(() => {
-                    if (progress < 90) {
-                        progress += 10;
-                        textProgressFill.style.width = progress + '%';
-                    }
-                }, 200);
+                    if (progress < 90) { progress += 8; textProgressFill.style.width = progress + '%'; }
+                }, 250);
 
                 translatedContent = await translateText(text, currentDirection);
 
                 clearInterval(progressInterval);
                 textProgressFill.style.width = '100%';
-                textProgressText.textContent = 'Complete!';
+                textProgressText.textContent = 'Complete';
 
                 outputText.textContent = translatedContent;
                 textResult.classList.add('show');
-
             } catch (error) {
                 showError('Translation failed: ' + error.message, 'globalError');
             } finally {
-                setTimeout(() => {
-                    textProgress.classList.remove('show');
-                    translateTextBtn.disabled = false;
-                }, 1000);
+                setTimeout(() => { textProgress.classList.remove('show'); translateTextBtn.disabled = false; }, 800);
             }
         });
 
-        // Copy translation
+        // Copy
         copyTextBtn.addEventListener('click', () => {
             navigator.clipboard.writeText(translatedContent).then(() => {
-                copyTextBtn.textContent = 'Copied!';
-                setTimeout(() => {
-                    copyTextBtn.textContent = 'Copy Translation';
-                }, 2000);
+                copyTextBtn.textContent = '✓ Copied';
+                setTimeout(() => { copyTextBtn.textContent = 'Copy Translation'; }, 2000);
             });
         });
 
-        // File upload handling
-        uploadArea.addEventListener('click', () => fileInput.click());
+        // ═══════════════════════════════════════════════
+        //  FILE UPLOAD
+        // ═══════════════════════════════════════════════
+        const extractedPreview = document.getElementById('extractedPreview');
+        const extractedText = document.getElementById('extractedText');
+        const fileSizeEl = document.getElementById('fileSize');
 
-        fileInput.addEventListener('change', (e) => {
-            if (e.target.files.length > 0) {
-                handleFile(e.target.files[0]);
-            }
-        });
-
-        uploadArea.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            uploadArea.classList.add('dragover');
-        });
-
-        uploadArea.addEventListener('dragleave', () => {
-            uploadArea.classList.remove('dragover');
-        });
-
-        uploadArea.addEventListener('drop', (e) => {
-            e.preventDefault();
-            uploadArea.classList.remove('dragover');
-            if (e.dataTransfer.files.length > 0) {
-                handleFile(e.dataTransfer.files[0]);
-            }
-        });
-
-        removeBtn.addEventListener('click', () => {
-            selectedFile = null;
-            fileInput.value = '';
-            fileInfo.classList.remove('show');
-            translateFileBtn.disabled = true;
-            resetFileUI();
-        });
-
-        function handleFile(file) {
-            selectedFile = file;
-            fileName.textContent = file.name;
-            fileInfo.classList.add('show');
-            translateFileBtn.disabled = false;
-            resetFileUI();
+        // Configure PDF.js worker
+        if (typeof pdfjsLib !== 'undefined') {
+            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
         }
 
-        async function translateFileBtnHandler() {
-            if (!selectedFile) return;
+        uploadArea.addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', (e) => { if (e.target.files.length > 0) handleFile(e.target.files[0]); });
+        uploadArea.addEventListener('dragover', (e) => { e.preventDefault(); uploadArea.classList.add('dragover'); });
+        uploadArea.addEventListener('dragleave', () => { uploadArea.classList.remove('dragover'); });
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault(); uploadArea.classList.remove('dragover');
+            if (e.dataTransfer.files.length > 0) handleFile(e.dataTransfer.files[0]);
+        });
+        removeBtn.addEventListener('click', () => {
+            selectedFile = null; extractedFileText = ''; fileInput.value = '';
+            fileInfo.classList.remove('show'); translateFileBtn.disabled = true;
+            extractedPreview.style.display = 'none';
+            resetFileUI();
+        });
 
+        let extractedFileText = '';
+
+        function formatFileSize(bytes) {
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+            return (bytes / 1048576).toFixed(1) + ' MB';
+        }
+
+        async function handleFile(file) {
+            selectedFile = file;
+            fileName.textContent = file.name;
+            fileSizeEl.textContent = formatFileSize(file.size);
+            fileInfo.classList.add('show');
+            extractedPreview.style.display = 'none';
+            extractedFileText = '';
+            resetFileUI();
+
+            // Validate file type
+            const ext = file.name.split('.').pop().toLowerCase();
+            if (!['txt', 'pdf', 'docx'].includes(ext)) {
+                showError('Unsupported file type. Please use TXT, PDF, or DOCX files.', 'errorMessage');
+                translateFileBtn.disabled = true;
+                return;
+            }
+
+            // Validate file size (max 10MB)
+            if (file.size > 10 * 1024 * 1024) {
+                showError('File too large. Maximum size is 10 MB.', 'errorMessage');
+                translateFileBtn.disabled = true;
+                return;
+            }
+
+            // Auto-extract text on upload so user can preview
+            try {
+                fileProgress.classList.add('show');
+                fileProgressFill.style.width = '0%';
+                fileProgressText.textContent = 'Extracting text...';
+
+                extractedFileText = await readFileContent(file);
+
+                fileProgressFill.style.width = '100%';
+                fileProgressText.textContent = 'Text extracted';
+                setTimeout(() => fileProgress.classList.remove('show'), 600);
+
+                if (extractedFileText && extractedFileText.trim()) {
+                    // Show preview (first 500 chars)
+                    const preview = extractedFileText.length > 500
+                        ? extractedFileText.substring(0, 500) + '...'
+                        : extractedFileText;
+                    extractedText.textContent = preview;
+                    extractedPreview.style.display = 'block';
+                    translateFileBtn.disabled = false;
+                } else {
+                    showError('No text could be extracted from this file. The file may be empty or contain only images.', 'errorMessage');
+                    translateFileBtn.disabled = true;
+                }
+            } catch (error) {
+                fileProgress.classList.remove('show');
+                showError('Extraction failed: ' + error.message, 'errorMessage');
+                translateFileBtn.disabled = true;
+            }
+        }
+
+        translateFileBtn.addEventListener('click', async () => {
+            if (!selectedFile || !extractedFileText.trim()) return;
             translateFileBtn.disabled = true;
             fileProgress.classList.add('show');
             fileResult.classList.remove('show');
             hideError('errorMessage');
+            fileProgressFill.style.width = '0%';
+            fileProgressText.textContent = 'Translating...';
 
             try {
                 let progress = 0;
                 const progressInterval = setInterval(() => {
-                    if (progress < 80) {
-                        progress += 10;
-                        fileProgressFill.style.width = progress + '%';
-                        fileProgressText.textContent = getProgressText(progress);
-                    }
-                }, 300);
+                    if (progress < 85) { progress += 5; fileProgressFill.style.width = progress + '%'; fileProgressText.textContent = getProgressText(progress); }
+                }, 400);
 
-                // Read file content
-                const text = await readFileContent(selectedFile);
-
-                fileProgressText.textContent = 'Translating...';
-
-                // Translate
-                translatedContent = await translateText(text, currentDirection);
+                translatedContent = await translateText(extractedFileText, currentDirection);
 
                 clearInterval(progressInterval);
                 fileProgressFill.style.width = '100%';
-                fileProgressText.textContent = 'Complete!';
+                fileProgressText.textContent = 'Complete';
 
-                // Create download
-                const blob = new Blob([translatedContent], { type: 'text/plain;charset=utf-8' });
+                // Create download with BOM for proper UTF-8 in text editors
+                const bom = '\uFEFF';
+                const blob = new Blob([bom + translatedContent], { type: 'text/plain;charset=utf-8' });
                 const url = URL.createObjectURL(blob);
                 downloadBtn.href = url;
-                downloadBtn.download = 'translated_' + selectedFile.name.replace(/\.(txt|pdf|docx)$/i, '.txt');
-
+                downloadBtn.download = 'translated_' + selectedFile.name.replace(/\.[^.]+$/, '.txt');
                 fileResult.classList.add('show');
-
             } catch (error) {
                 showError('Translation failed: ' + error.message, 'errorMessage');
             } finally {
-                setTimeout(() => {
-                    fileProgress.classList.remove('show');
-                    translateFileBtn.disabled = false;
-                }, 1000);
+                setTimeout(() => { fileProgress.classList.remove('show'); translateFileBtn.disabled = false; }, 800);
+            }
+        });
+
+        // ═══════════════════════════════════════════════
+        //  FILE READING — supports TXT, PDF, DOCX
+        // ═══════════════════════════════════════════════
+        async function readFileContent(file) {
+            const ext = file.name.split('.').pop().toLowerCase();
+
+            if (ext === 'txt' || ext === 'text' || ext === 'csv') {
+                return await readAsTextFile(file);
+            } else if (ext === 'pdf') {
+                return await readPdfFile(file);
+            } else if (ext === 'docx') {
+                return await readDocxFile(file);
+            } else {
+                // Fallback: try reading as text
+                return await readAsTextFile(file);
             }
         }
 
-        translateFileBtn.addEventListener('click', translateFileBtnHandler);
-
-        function readFileContent(file) {
+        function readAsTextFile(file) {
             return new Promise((resolve, reject) => {
                 const reader = new FileReader();
-
-                reader.onload = (e) => {
-                    resolve(e.target.result);
-                };
-
-                reader.onerror = () => {
-                    reject(new Error('Failed to read file'));
-                };
-
-                if (file.type === 'text/plain' || file.name.endsWith('.txt')) {
-                    reader.readAsText(file);
-                } else if (file.type === 'application/pdf' || file.name.endsWith('.pdf')) {
-                    // For PDF, we need pdf.js - fallback to text extraction notice
-                    reject(new Error('PDF extraction requires pdf.js library. Please use TXT or DOCX files, or copy text to the Text Translation tab.'));
-                } else if (file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' || file.name.endsWith('.docx')) {
-                    // For DOCX, we need mammoth.js - fallback notice
-                    reject(new Error('DOCX extraction requires mammoth.js library. Please use TXT files, or copy text to the Text Translation tab.'));
-                } else {
-                    reader.readAsText(file);
-                }
+                reader.onload = (e) => resolve(e.target.result);
+                reader.onerror = () => reject(new Error('Failed to read text file'));
+                reader.readAsText(file, 'UTF-8');
             });
         }
 
-        function resetFileUI() {
-            fileResult.classList.remove('show');
-            hideError('errorMessage');
-            fileProgressFill.style.width = '0%';
+        async function readPdfFile(file) {
+            if (typeof pdfjsLib === 'undefined') {
+                throw new Error('PDF library failed to load. Please check your internet connection and refresh the page.');
+            }
+            const arrayBuffer = await file.arrayBuffer();
+            const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+            const totalPages = pdf.numPages;
+            let fullText = '';
+
+            for (let i = 1; i <= totalPages; i++) {
+                const page = await pdf.getPage(i);
+                const content = await page.getTextContent();
+                const pageText = content.items.map(item => item.str).join(' ');
+                if (pageText.trim()) {
+                    fullText += pageText + '\n\n';
+                }
+            }
+            return fullText.trim();
         }
 
-        function getProgressText(progress) {
-            if (progress < 30) return 'Reading document...';
-            if (progress < 50) return 'Extracting text...';
-            if (progress < 70) return 'Translating content...';
+        async function readDocxFile(file) {
+            if (typeof mammoth === 'undefined') {
+                throw new Error('DOCX library failed to load. Please check your internet connection and refresh the page.');
+            }
+            const arrayBuffer = await file.arrayBuffer();
+            const result = await mammoth.extractRawText({ arrayBuffer: arrayBuffer });
+            return result.value || '';
+        }
+
+        function resetFileUI() {
+            fileResult.classList.remove('show'); hideError('errorMessage'); fileProgressFill.style.width = '0%';
+        }
+
+        function getProgressText(p) {
+            if (p < 25) return 'Reading document...';
+            if (p < 50) return 'Extracting text...';
+            if (p < 70) return 'Translating content...';
             return 'Finalizing...';
         }
 
-        function showError(message, elementId) {
-            const el = document.getElementById(elementId);
-            el.textContent = message;
-            el.classList.add('show');
-        }
-
-        function hideError(elementId) {
-            const el = document.getElementById(elementId);
-            el.classList.remove('show');
-        }
+        function showError(msg, id) { const el = document.getElementById(id); el.textContent = msg; el.classList.add('show'); }
+        function hideError(id) { document.getElementById(id).classList.remove('show'); }
     </script>
 </body>
 </html>
